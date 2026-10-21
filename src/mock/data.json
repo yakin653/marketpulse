@@ -1,0 +1,21 @@
+﻿{
+  "assets": ["AAPL", "MSFT", "TSLA", "NVDA", "BTC-USD"],
+  "AAPL": {
+    "symbol": "AAPL",
+    "prix_actuel": 175.50,
+    "tendance": "haussière",
+    "ma20": 172.10,
+    "ma50": 168.40,
+    "volatilite_annualisee_pct": 22.5,
+    "max_drawdown_pct": 12.3
+  },
+  "MSFT": {
+    "symbol": "MSFT",
+    "prix_actuel": 420.10,
+    "tendance": "haussière",
+    "ma20": 415.00,
+    "ma50": 405.50,
+    "volatilite_annualisee_pct": 18.2,
+    "max_drawdown_pct": 8.5
+  }
+}
