@@ -1,17 +1,15 @@
+import withSerwistInit from "@serwist/next";
 import type { NextConfig } from "next";
 
+const withSerwist = withSerwistInit({
+  additionalPrecacheEntries: [{ url: "/offline", revision: crypto.randomUUID() }],
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+});
+
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
+  turbopack: {}, // 👈 ajoute ça pour calmer Next.js 16
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

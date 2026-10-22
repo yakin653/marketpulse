@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, LineChart, MessageSquare, BookOpen } from 'lucide-react';
+import { LayoutDashboard, LineChart, MessageSquare, BookOpen , Star} from 'lucide-react';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -44,3 +44,4 @@ export default function Navbar() {
     </nav>
   );
 }
+

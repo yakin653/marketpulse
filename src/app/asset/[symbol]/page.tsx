@@ -3,8 +3,11 @@ import { calculatePulseScore } from "@/lib/pulse";
 import PulseScore from "@/components/PulseScore";
 import PriceChart from "@/components/PriceChart";
 
-export default async function AssetPage({ params }: { params: { symbol: string } }) {
-  const asset = await getAsset(params.symbol);
+// Next.js 16 exige que params soit une Promise
+export default async function AssetPage({ params }: { params: Promise<{ symbol: string }> }) {
+  const resolvedParams = await params; // On attend la résolution
+  const asset = await getAsset(resolvedParams.symbol);
+  
   if (!asset) return <div className="text-center mt-20 text-xl">Entreprise introuvable.</div>;
 
   const mockHistory = Array.from({ length: 30 }).map((_, i) => ({
