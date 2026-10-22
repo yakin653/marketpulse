@@ -1,4 +1,4 @@
-﻿import { getAssets, getAsset } from "@/lib/api";
+import { getAssets, getAsset } from "@/lib/api";
 import Link from "next/link";
 import { TrendingUp, TrendingDown } from "lucide-react";
 

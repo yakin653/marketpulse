@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { getAsset } from "@/lib/api";
 import { calculatePulseScore } from "@/lib/pulse";
 import PulseScore from "@/components/PulseScore";
