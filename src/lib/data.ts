@@ -1,3 +1,4 @@
+import axios from "axios";
 import { readCache, saveCache } from "./db";
 
 export type DataSource = "network" | "cache" | "mock";
@@ -8,10 +9,19 @@ export interface LoadResult<T> {
   savedAt?: number;
 }
 
+const http = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
+  timeout: 6000,
+});
+
 export async function loadData<T>(cacheKey: string, path: string, mock: T): Promise<LoadResult<T>> {
-  // On simule un petit délai réseau (300ms) pour que le loader soit visible
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  // On retourne les données du mock
-  return { data: mock, source: "mock" };
+  try {
+    const res = await http.get<T>(path);
+    await saveCache(cacheKey, res.data).catch(() => {});
+    return { data: res.data, source: "network" };
+  } catch (error) {
+    const cached = await readCache<T>(cacheKey).catch(() => undefined);
+    if (cached) return { data: cached.data, source: "cache", savedAt: cached.savedAt };
+    return { data: mock, source: "mock" };
+  }
 }
