@@ -1,6 +1,6 @@
 # Scénario de démonstration — Modern Mobile Application
 
-URL publique (à coller le jour J) : `______________________________`
+URL publique : https://marketpulse-zeta-jet.vercel.app
 
 ## Checklist exigée
 
