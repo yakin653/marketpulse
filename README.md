@@ -105,3 +105,4 @@ Le Pulse Score (`src/lib/pulse.ts`) pondère la position face aux moyennes mobil
 - **Mode démo** : les chiffres affichés viennent de `src/mock/data.json` et sont étiquetés comme tels ; les alertes créées sans API restent sur l'appareil.
 - **Installation sur un vrai téléphone** : contrôlée sur le build et sur Chrome, pas sur un appareil physique.
 - Un avertissement eslint connu (`react-hooks/exhaustive-deps` dans `src/hooks/useResource.ts`), sans erreur.
+- **Qualité outillée** : la porte qualité SonarCloud est en échec sur les deux dépôts et `npm audit` signale 7 avis dans les dépendances de production. Détail dans `docs/VALIDATION.md`.

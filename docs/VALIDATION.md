@@ -20,6 +20,7 @@ Chaque ligne donne la commande et le résultat observé. Ce qui n'a pas été v�
 | --- | --- | --- |
 | Lint, types, test, build | `npm run check` | code de sortie 0 : eslint 0 erreur et 1 avertissement connu, `tsc --noEmit` sans erreur, 2 tests sur 2, build de 22 pages |
 | Service worker généré | présence de `public/sw.js` après le build | présent, non suivi par Git |
+| Clone vierge depuis GitHub | `git clone`, `copy .env.example .env.local`, `npm ci`, `npm run lint`, `npx tsc --noEmit`, test du Pulse Score, `npm run build` | code de sortie 0 à chaque étape, `public/sw.js` généré, `git status` propre |
 | Site local (`npm start`) | `curl.exe` sur `/`, `/login`, `/manifest.webmanifest`, `/sw.js`, `/offline`, `/api/health` | 200 partout |
 
 ## API (`finsight`)
@@ -58,11 +59,19 @@ https://marketpulse-zeta-jet.vercel.app, interrogé en lecture seule avec `curl.
 
 **C'est une démonstration sans API.** Les pages, le manifest et le service worker sont servis, mais `/api` n'aboutit nulle part : pas de compte, pas d'alertes serveur, pas de chat. On y montre l'installation, le hors ligne et le mode démo.
 
+Le projet Vercel est relié à GitHub : chaque `git push` sur `main` déclenche un nouveau déploiement (statut « Vercel » visible sur le commit).
+
 ## Secrets
 
 - `git ls-files` des deux dépôts : aucun `.env` autre que `.env.example`, aucun dump, aucune clé.
 - Historique des deux dépôts balayé (mots de passe, chaînes de connexion, jetons, clés privées) : rien trouvé. Les seules valeurs présentes sont les valeurs locales documentées de `.env.example`.
 - `.gitignore` des deux dépôts : `.env`, `.env.*`, `!.env.example`, `*.bak`.
+
+## Points ouverts, connus
+
+- **SonarCloud : porte qualité en échec sur les deux dépôts**, déjà avant cette version. Site : 12 remarques de fiabilité (boutons sans attribut `type`, zones cliquables sans gestion du clavier, une promesse sans `catch`). API : le mot de passe PostgreSQL local de développement, présent dans `docker-compose.yml`, `backend/app/database.py` et la CI, est signalé comme secret ; c'est une valeur locale documentée, à changer avant tout hébergement. L'alerte `IndexError` de `market_refresh.py` est un faux positif (l'indice est borné sur la ligne même).
+- **`npm audit`** : 37 avis sur l'arbre complet, dont 7 dans les dépendances de production (5 élevés, 2 modérés, aucun critique), surtout par `@serwist/next`. Non corrigé : le correctif proposé change de version majeure.
+- Un avertissement eslint (`react-hooks/exhaustive-deps`, `src/hooks/useResource.ts`).
 
 ## Non vérifié
 
