@@ -1,107 +1,107 @@
-# MarketPulse
+# MarketPulse — site (PWA Next.js)
 
-Lecture de marché pour un projet universitaire. Les cours viennent de Yahoo Finance. Aucun prix n'est inventé. Les textes sont pédagogiques : ce n'est pas un conseil en investissement.
+Lecture de marché pour un projet universitaire : cours, Pulse Score, alertes, fiches pédagogiques et chat.
+Les cours viennent de Yahoo Finance via l'API. Ce n'est pas un conseil en investissement.
 
-```mermaid
-flowchart LR
-  navigateur[Navigateur] --> site[Next sur localhost:3000]
-  site -->|"/api"| api[FastAPI]
-  api --> postgres[(PostgreSQL)]
-  api --> yahoo[Yahoo Finance]
-  api --> ollama[Ollama sur la machine]
-  api --> fiches[Fiches knowledge]
-```
+- Ce dépôt : le site (Next.js 16, React 19, Tailwind 4, Serwist, IndexedDB).
+- Dépôt voisin `finsight` : l'API FastAPI, PostgreSQL, les fiches et le chat. Son README décrit les routes et la sécurité.
+- Version présentée : tag `v1.0-validation` dans les deux dépôts.
 
-Le frontend est ce dépôt. L'API FastAPI et PostgreSQL sont dans le dossier voisin `C:\Users\yakin\finsight`.
+## Démarrage en une page
 
-## Lancer le projet
-
-Deux terminaux PowerShell. Docker Desktop doit être démarré. Le port 8000 doit être libre : un uvicorn lancé à la main sur ce port empêche le conteneur de démarrer.
-
-**1. Base et API**
+Prérequis : Node 20 ou plus, Docker Desktop lancé, ports 3000, 8000 et 5432 libres.
 
 ```powershell
-cd C:\Users\yakin\finsight
+# 1. API et base (dépôt finsight)
+cd finsight
 copy .env.example .env
 docker compose up -d --build
-```
+# http://127.0.0.1:8000/health doit répondre {"status":"ok","service":"marketpulse"}
 
-Vérifier : http://127.0.0.1:8000/health doit répondre `{"status":"ok","service":"marketpulse"}`.
-
-Ollama reste sur la machine, pas dans Docker. L'API le joint via `host.docker.internal`. Sans Ollama, les avis restent le texte calculé en Python.
-
-```powershell
-ollama pull llama3.2:3b
-```
-
-**2. Interface**
-
-```powershell
-cd C:\Users\yakin\marketpulse
+# 2. Site (ce dépôt)
+cd ..\marketpulse
 copy .env.example .env.local
-npm install
-npm run dev
+npm ci
+npm run build
+npm start
 ```
 
 Ouvrir http://localhost:3000.
 
-Le service worker est désactivé pendant `npm run dev`. Pour tester la PWA : `npm run build` puis `npm start`.
+- `npm run dev` sert pour développer, mais le service worker y est désactivé : la PWA (installation, hors ligne) se teste avec `npm run build` puis `npm start`.
+- Après chaque `npm run build`, relancer `npm start`.
+- Sans API, le bouton « Continuer en mode démo » de la page de connexion ouvre le site avec un jeu local étiqueté « Données de démonstration ».
+- Optionnel : Ollama sur la machine (`ollama pull llama3.2:3b`) pour la reformulation du chat. Sans lui, le chat sert la réponse calculée en Python.
+
+## Vérifier
+
+```powershell
+npm run check
+```
+
+Enchaîne `eslint`, `tsc --noEmit`, le test du Pulse Score (`scripts/pulse.test.ts`) et `next build --webpack`. Le build génère `public/sw.js` (ignoré par Git).
+
+## Architecture
+
+```mermaid
+flowchart LR
+  nav[Navigateur ou PWA installée] -->|pages, sw.js| site[Next.js, port 3000]
+  nav -->|/api, cookie de session| site
+  site -->|rewrite /api vers API_PROXY_TARGET| api[FastAPI, port 8000]
+  api --> pg[(PostgreSQL)]
+  api --> yahoo[Yahoo Finance]
+  api --> ollama[Ollama sur la machine]
+  api --> fiches[76 fiches knowledge]
+  nav --> idb[(IndexedDB : watchlist, cache)]
+  nav --> cs[(Cache Storage : pages, /offline)]
+```
+
+Le navigateur n'appelle que `/api` sur le site ; Next relaie vers l'API. Le cookie de session reste donc sur le même site (`HttpOnly`, `SameSite=Lax`).
 
 ## Variables
 
-| Variable | Où | Rôle |
-| --- | --- | --- |
-| `POSTGRES_PASSWORD` | `finsight/.env` | Mot de passe du Postgres Docker. Le volume déjà créé utilise `monmdp`. |
-| `DATABASE_URL` | `finsight/.env` | Connexion pour un uvicorn lancé sur la machine. Schéma obligatoire : `postgresql+psycopg://`. |
-| `OLLAMA_URL` | `finsight/.env` | Défaut Docker : `http://host.docker.internal:11434`. |
-| `OLLAMA_MODEL` | `finsight/.env` | `llama3.2:3b`. |
-| `MARKET_REFRESH_ON_START` | `finsight/.env` | `1` rafraîchit Yahoo au démarrage si besoin. `0` coupe le réseau. |
-| `NEXT_PUBLIC_API_URL` | `marketpulse/.env.local` | `/api`. Next relaie vers `http://127.0.0.1:8000` (`API_PROXY_TARGET` si l'API n'est pas là). |
+| Variable | Fichier | Défaut | Rôle |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | `.env.local` | `/api` | Adresse appelée par le navigateur. Laisser `/api`. |
+| `API_PROXY_TARGET` | `.env.local`, ou réglage Vercel | `http://127.0.0.1:8000` | Cible du rewrite `/api`. Sur Vercel : URL HTTPS publique de l'API. |
 
-Le conteneur API ne lit pas `DATABASE_URL` du fichier `.env` : `docker-compose.yml` le fixe vers l'hôte `db`, avec le driver `psycopg`.
+Les variables de l'API (base, session, e-mail, Ollama, push, Google) sont dans le README de `finsight`. Aucun secret n'est nécessaire côté site.
 
-## Arrêter
+## Ce que la validation demande, et où c'est dans le code
 
-```powershell
-cd C:\Users\yakin\finsight
-docker compose down
-```
-
-`docker compose down` garde les cours (volume `pgdata`). `docker compose down -v` les efface.
-
-## Compte et schéma
-
-Les tables sont créées au démarrage de l'API (`create_all`, donc sans doublon).
-
-| Table | Rôle |
+| Exigence | Fichiers |
 | --- | --- |
-| `users` | e-mail, empreinte du mot de passe, nom |
-| `user_profiles` | niveau, horizon, risque, listes, notifications |
-| `user_symbols` | watchlist synchronisée |
-| `conversations`, `messages` | chat, 20 derniers messages |
-| `news_items` | titre, éditeur, lien, date. Sentiment vide : FinBERT n'est pas chargé par l'API |
-| `notifications` | news, résumé ou alerte |
-| `push_subscriptions` | Web Push |
-| `alert_rules` | franchissement de moyenne, repli, volatilité |
+| PWA installable | `src/app/manifest.ts` (standalone, icônes 192 et 512, maskable), `src/components/InstallPrompt.tsx` |
+| Hors ligne | `src/app/sw.ts` (Serwist : précache, `/api` en `NetworkOnly`, repli `/offline`), `src/lib/data.ts` (réseau, puis cache IndexedDB, puis jeu local), `src/components/OfflineBanner.tsx` |
+| CRUD | Watchlist `src/app/watchlist/page.tsx` + `src/lib/db.ts` (IndexedDB) ; alertes `src/app/alerts/page.tsx` (API `/me/alerts`, repli local `src/lib/alertsLocal.ts`) ; conversations `src/app/chat/page.tsx` ; profil `src/app/profile/page.tsx` |
+| Mobile d'abord | `src/components/AppShell.tsx` (onglets en bas sous `md`), `viewport` dans `src/app/layout.tsx` |
+| Bonus IA | `src/app/chat/page.tsx`, `src/components/ChatDock.tsx` ; moteur dans `finsight/backend/app/chat_engine.py` |
+| Hébergement Vercel | `vercel.json`, `docs/DEPLOY-VERCEL.md` |
 
-Variables ajoutées : `JWT_SECRET`, `CORS_ORIGINS`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `APP_PUBLIC_URL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`. Les clés push se génèrent avec `python scripts/gen_vapid.py` depuis `finsight/backend`. Sans elles, les notifications restent dans l'application.
+Pages : `/dashboard`, `/markets`, `/asset/[symbol]`, `/watchlist`, `/alerts`, `/compare`, `/chat`, `/academy`, `/learn`, `/notifications`, `/profile`, `/status`, `/login`, `/register`, `/forgot-password`, `/reset-password`, `/onboarding`, `/offline`.
 
-Le navigateur parle à `/api` sur `localhost:3000`. Next retransmet vers l'API (délai `experimental.proxyTimeout` de 120 secondes, le défaut de cette version est 30). Le cookie de session reste sur le site : `HttpOnly`, `Path=/`, `SameSite=Lax`, `Secure` seulement si `COOKIE_SECURE=true`. « Se souvenir de moi » décoché ne pose pas de `Max-Age`. Sans SMTP, le lien de réinitialisation est écrit dans les logs de l'API hors production. Le bouton Google n'apparaît que si les deux variables Google sont définies ; ce flux réel est non testé. Voir le README de `finsight`.
+Le Pulse Score (`src/lib/pulse.ts`) pondère la position face aux moyennes mobiles (45 %), la stabilité (30 %) et le repli maximal (25 %). La probabilité du modèle n'y entre pas.
 
-Dépendances Python ajoutées : `bcrypt` (mots de passe), `PyJWT` (cookie de session), `apscheduler` (titres et alertes toutes les 15 minutes), `pywebpush` (push).
+## Documents
 
-Les anciens fichiers news, signal, insight, anomalies et FinBERT sont dans `finsight/legacy`. Les routes vivantes lisent `market_data` avec SQLAlchemy.
+- `docs/VALIDATION.md` : ce qui a été vérifié, avec les commandes.
+- `docs/DEMO.md` : démonstration en 5 minutes et plans B.
+- `docs/QUESTIONS_JURY.md` : 15 questions probables et où trouver la réponse dans le code.
+- `docs/CHECKLIST_VEILLE.md` : à faire la veille et le matin.
+- `docs/DEPLOY-VERCEL.md` : déploiement du site.
+- `docs/PHASE-V-AUDIT.md` : audit précédent (historique).
 
-Pages ajoutées : `/compare` (2 à 4 actifs rebasés à 100), `/academy` (fiches et quiz), `/status` (API, base, Ollama, âge Yahoo, version du modèle). La watchlist affiche un test de résistance sur les cinq plus mauvaises séances stockées. Le chat a quatre modes : données, connaissance, application, hors périmètre. Une question de comparaison propose le lien vers `/compare`.
+## Limites connues
 
-`npm run check` enchaîne le lint, `tsc`, un test du Pulse Score, puis le build. L'impression d'une fiche actif masque le menu (`@media print`).
-
-`OLLAMA_MODEL` vaut `llama3.2:3b`. Un modèle plus grand, par exemple `llama3.1:8b`, n'est utile que si la machine a la RAM. Sans Ollama, le chat reste sur le texte déterministe.
-
-## Validation module (PWA + Vercel)
-
-- Manifest : `/manifest.webmanifest` (icônes 192/512, `display: standalone`).
-- Hors ligne : Serwist (`sw.js`) + page `/offline` + watchlist IndexedDB. Actif après `npm run build` / sur Vercel, pas en `npm run dev`.
-- CRUD : watchlist (IndexedDB), alertes (`/alerts`), profil, conversations chat.
-- Scénario de démo : `docs/DEMO-VALIDATION.md`.
-- Déploiement : `docs/DEPLOY-VERCEL.md` (`npx vercel login` puis `npx vercel --prod`).
+- **Le lien Vercel est une démonstration sans API.** https://marketpulse-zeta-jet.vercel.app sert les pages, le manifest et le service worker, mais `/api` y répond 404 : `API_PROXY_TARGET` n'y pointe vers aucune API publique. Seuls le mode démo, la watchlist locale et le hors ligne y fonctionnent. Le produit complet se montre en local.
+- **L'API n'est déployée nulle part.** `finsight/render.yaml` n'a jamais été appliqué.
+- **Notifications push non configurées** : pas de clés VAPID, donc les notifications restent dans l'application. L'envoi push réel n'a jamais été testé.
+- **Connexion Google non testée** : le bouton n'apparaît que si les deux variables Google sont définies, et le flux n'a jamais été rejoué contre Google.
+- **FinBERT désactivé** : le sentiment des titres d'actualité est toujours vide.
+- **Modèle sans avantage prouvé** : 52,7 % de précision contre 52,9 % pour la règle « toujours hausse ». Il est affiché comme tel et n'entre pas dans le Pulse Score.
+- **Six mois de cours** par actif (plage Yahoo `6mo`).
+- **E-mail réel non configuré par défaut** : le code de connexion arrive dans Mailpit (http://localhost:8025) ou dans les logs de l'API. Recevoir le code dans une vraie boîte demande un compte d'envoi (`finsight/configurer-email.ps1`), jamais testé de bout en bout.
+- **Chat avec Ollama** : sur la machine de développement, la reformulation ne tient pas dans le délai de 30 secondes ; c'est la réponse Python qui est servie.
+- **Mode démo** : les chiffres affichés viennent de `src/mock/data.json` et sont étiquetés comme tels ; les alertes créées sans API restent sur l'appareil.
+- **Installation sur un vrai téléphone** : contrôlée sur le build et sur Chrome, pas sur un appareil physique.
+- Un avertissement eslint connu (`react-hooks/exhaustive-deps` dans `src/hooks/useResource.ts`), sans erreur.

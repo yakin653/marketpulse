@@ -1,6 +1,8 @@
 # Scénario de démonstration — Modern Mobile Application
 
-URL publique : https://marketpulse-zeta-jet.vercel.app
+Version longue (8 minutes). La version courte à présenter, avec les plans B, est `docs/DEMO.md`.
+
+URL publique : https://marketpulse-zeta-jet.vercel.app. C'est une démonstration **sans API** : les étapes 2 (compte réel), 4 et 6 ne fonctionnent qu'en local (http://localhost:3000).
 
 ## Checklist exigée
 
@@ -11,11 +13,11 @@ URL publique : https://marketpulse-zeta-jet.vercel.app
 | Mobile first | Chrome DevTools iPhone / Pixel ; onglets bas | Prêt |
 | CRUD | Watchlist (local) + Alertes (API) + Profil + Chat conversations | Prêt |
 | Bonus IA | Chat (Ollama / repli Python) + Pulse Score + évaluation modèle | Prêt |
-| Hébergement Vercel | URL publique du frontend | À déployer |
+| Hébergement Vercel | URL publique du frontend | Déployé, sans API (pages, manifest et `sw.js` en 200 le 2026-11-11 ; `/api` en 404) |
 
 ## Scénario 8 minutes
 
-1. **Ouvrir l’URL Vercel** sur téléphone ou DevTools mobile. Montrer la carte de connexion.
+1. **Ouvrir http://localhost:3000** (ou l’URL Vercel pour le seul mode démo) en vue mobile dans DevTools. Montrer la carte de connexion.
 2. **Connexion** : compte réel, ou bouton **Continuer en mode démo** (fonctionne même sans API). Dashboard ensuite.
 3. **CRUD watchlist** : ajouter AAPL et MSFT, modifier une note, supprimer un symbole. Dire que c’est IndexedDB, donc utilisable hors ligne.
 4. **CRUD alertes** : créer une alerte MM20 sur AAPL, la mettre en pause, la supprimer.
