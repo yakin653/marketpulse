@@ -6,12 +6,17 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   // Override default ignores of eslint-config-next.
+  {
+    files: ["src/app/sw.ts"],
+    rules: { "@typescript-eslint/ban-ts-comment": "off" },
+  },
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "public/sw.js",
   ]),
 ]);
 

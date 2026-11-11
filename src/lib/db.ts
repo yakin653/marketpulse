@@ -64,3 +64,10 @@ export async function removeWatch(symbol: string) {
   const db = await getDB();
   await db.delete("watchlist", symbol);
 }
+
+/** Efface le cache local du compte : session, chat, alertes, watchlist. */
+export async function clearSessionData() {
+  const db = await getDB();
+  await db.clear("cache");
+  await db.clear("watchlist");
+}

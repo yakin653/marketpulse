@@ -1,14 +1,37 @@
-import OfflineBanner from "@/components/OfflineBanner";
-import type { Metadata } from "next";
+import DevSwReset from "@/components/DevSwReset";
+import Providers from "@/components/Providers";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "MarketPulse",
-  description: "Sentez le pouls des marchés.",
+  description: "PWA de lecture de marché : cours, alertes, chat et mode hors ligne.",
+  applicationName: "MarketPulse",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "MarketPulse",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0B0E11",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -18,14 +41,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={`${inter.className} flex flex-col md:flex-row h-screen overflow-hidden`}>
-        <Navbar />
-        <main className="flex-1 overflow-y-auto pb-16 md:pb-0 flex flex-col">
-          <OfflineBanner />
-          <div className="p-4 md:p-8 flex-1">
-            {children}
-          </div>
-        </main>
+      <body className={`${inter.className} h-screen overflow-hidden`}>
+        <Providers>
+          <DevSwReset />
+          <AppShell>{children}</AppShell>
+        </Providers>
       </body>
     </html>
   );

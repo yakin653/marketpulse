@@ -1,71 +1,75 @@
 ﻿"use client";
 
-import { useResource } from "@/hooks/useResource";
+import SearchBar from "@/components/SearchBar";
+import AssetCard from "@/components/AssetCard";
 import SourceBadge from "@/components/SourceBadge";
-import Link from "next/link";
-import { TrendingUp, TrendingDown, Loader2 } from "lucide-react";
+import DataOrigin from "@/components/DataOrigin";
+import { useResource } from "@/hooks/useResource";
 import mockData from "@/mock/data.json";
 
-export default function MarketsPage() {
-  const { data: symbols, source, loading } = useResource<string[]>(
-    "assets",
-    "/assets",
-    mockData.assets
-  );
+type OverviewAsset = {
+  symbol: string;
+  prix_actuel?: number | null;
+  tendance?: string | null;
+  ma20?: number | null;
+  ma50?: number | null;
+  variation_1j_pct?: number | null;
+  volatilite_annualisee_pct?: number | null;
+  max_drawdown_pct?: number | null;
+  probabilite_hausse_pct?: number | null;
+  origine?: string | null;
+  date?: string | null;
+};
 
-  if (loading) {
-    return (
-      <div className="flex justify-center mt-20">
-        <Loader2 className="animate-spin" size={40} />
-      </div>
-    );
-  }
+function localOverview(): OverviewAsset[] {
+  const symbols = Array.isArray(mockData.assets) ? mockData.assets : [];
+  return symbols.map((symbol) => {
+    const row = (mockData as Record<string, unknown>)[symbol] as Partial<OverviewAsset> | undefined;
+    const price = typeof row?.prix_actuel === "number" && row.prix_actuel > 0 ? row.prix_actuel : null;
+    return {
+      symbol,
+      prix_actuel: price,
+      tendance: row?.tendance ?? "indéterminée",
+      ma20: row?.ma20 ?? null,
+      ma50: row?.ma50 ?? null,
+      volatilite_annualisee_pct: row?.volatilite_annualisee_pct ?? null,
+      max_drawdown_pct: row?.max_drawdown_pct ?? null,
+      probabilite_hausse_pct: null,
+      origine: "mock",
+    };
+  });
+}
+
+export default function MarketsPage() {
+  const { data, source, loading, reload } = useResource<OverviewAsset[]>("overview", "/assets/overview", localOverview());
+  const assets = !loading && Array.isArray(data) ? data : [];
+  const origin = source === "mock" ? "mock" : assets.find((asset) => asset.origine)?.origine;
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold">Marchés</h1>
-          <SourceBadge source={source} />
+    <div className="max-w-6xl mx-auto">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <h1 className="text-2xl font-bold">Marchés</h1>
+        {source === "cache" && <SourceBadge source="cache" />}
+        {!loading && <DataOrigin origine={source === "mock" ? "mock" : origin} asOf={assets.find((asset) => asset.date)?.date} />}
+      </div>
+
+      <div className="mb-6">
+        <SearchBar onAdded={reload} />
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="h-40 rounded-xl bg-[var(--surface)] border border-gray-800 animate-pulse" />
+          ))}
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {(symbols ?? []).map((symbol) => {
-          const assetMock = (mockData as any)[symbol] || {
-            prix_actuel: 0,
-            tendance: "neutre",
-          };
-
-          return (
-            <Link
-              key={symbol}
-              href={`/asset/${symbol}`}
-              className="bg-[var(--surface)] p-4 rounded-xl border border-gray-800 hover:border-[var(--accent)] transition-colors group"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-xl font-bold">{symbol}</h2>
-                  <p className="text-sm text-gray-400">Action</p>
-                </div>
-
-                {assetMock.tendance === "haussière" ? (
-                  <div className="flex items-center gap-1 text-[var(--positive)] bg-[var(--positive)]/10 px-2 py-1 rounded-md text-sm">
-                    <TrendingUp size={16} />
-                    <span>Hausse</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1 text-[var(--negative)] bg-[var(--negative)]/10 px-2 py-1 rounded-md text-sm">
-                    <TrendingDown size={16} />
-                    <span>Baisse</span>
-                  </div>
-                )}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {assets.map((asset) => (
+            <AssetCard key={asset.symbol} asset={asset} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-

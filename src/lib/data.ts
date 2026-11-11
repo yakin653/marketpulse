@@ -10,8 +10,9 @@ export interface LoadResult<T> {
 }
 
 const http = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
   timeout: 6000,
+  withCredentials: true,
 });
 
 export async function loadData<T>(cacheKey: string, path: string, mock: T): Promise<LoadResult<T>> {
@@ -19,7 +20,7 @@ export async function loadData<T>(cacheKey: string, path: string, mock: T): Prom
     const res = await http.get<T>(path);
     await saveCache(cacheKey, res.data).catch(() => {});
     return { data: res.data, source: "network" };
-  } catch (error) {
+  } catch {
     const cached = await readCache<T>(cacheKey).catch(() => undefined);
     if (cached) return { data: cached.data, source: "cache", savedAt: cached.savedAt };
     return { data: mock, source: "mock" };
