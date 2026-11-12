@@ -12,10 +12,11 @@ export const dynamic = "force-dynamic";
  */
 function backendBase(): string {
   if (process.env.VERCEL) {
+    // API_PROXY_TARGET sur Vercel pointe encore vers un localtunnel mort (503).
+    // Le tunnel SSH courant est prioritaire ; API_TUNNEL_URL peut le remplacer.
     return (
       process.env.API_TUNNEL_URL?.trim() ||
-      process.env.API_PROXY_TARGET?.trim() ||
-      "https://shiny-poets-stare.loca.lt"
+      "https://5e6ada983b8d33.lhr.life"
     ).replace(/\/$/, "");
   }
   return (
