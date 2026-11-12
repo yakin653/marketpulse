@@ -53,6 +53,7 @@ function OnboardingForm() {
       };
       await http.put("/me/profile", profile);
       if (user) setUser({ ...user, onboarding_completed: true, profile: { ...profile, onboarding_completed: true } });
+      try { sessionStorage.setItem("mp_tour_autostart", "1"); } catch { /* ignore */ }
       router.push("/dashboard");
     } catch (err) {
       setError(errorText(err, "Le profil n'a pas été enregistré."));

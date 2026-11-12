@@ -1,7 +1,7 @@
 # Démonstration en 5 minutes
 
-À montrer **en local** (http://localhost:3000, lancé par `npm run build` puis `npm start`).
-Le lien Vercel n'a pas d'API : il ne sert qu'au plan B « API en panne » et à prouver l'hébergement.
+À montrer en public sur **https://marketpulse-zeta-jet.vercel.app** (voir `docs/SOUTENANCE-PUBLIC.md`)
+ou en local (http://localhost:3000, `npm run build` puis `npm start`).
 
 Avant de commencer : `docs/CHECKLIST_VEILLE.md`.
 
@@ -9,11 +9,11 @@ Avant de commencer : `docs/CHECKLIST_VEILLE.md`.
 
 | Temps | Geste | Ce que ça prouve | Phrase |
 | --- | --- | --- | --- |
-| 0:00 | Ouvrir http://localhost:3000 dans Chrome, DevTools en vue téléphone. Se connecter avec le compte préparé. | Mobile d'abord, session par cookie | « Le navigateur ne parle qu'à `/api` sur le site, Next relaie vers FastAPI. » |
+| 0:00 | Ouvrir le lien Vercel (ou http://localhost:3000), DevTools en vue téléphone. Login compte préparé. Option : **Aide → Lancer la visite guidée** (ou Ctrl+K). | Mobile d'abord, session par cookie, visite guidée | « Le navigateur ne parle qu'à `/api` sur le site, Next relaie vers FastAPI. La visite montre Pulse, le chat et la watchlist sans conseil d'investissement. » |
 | 0:40 | Tableau de bord puis fiche AAPL : graphique, Pulse Score, encart du modèle. | Données Yahoo réelles, score expliqué | « Le score pèse moyennes mobiles 45, stabilité 30, repli 25. Le modèle fait 52,7 % contre 52,9 % pour toujours hausse : aucun avantage prouvé, donc il n'entre pas dans le score. » |
 | 1:30 | Watchlist : ajouter MSFT, écrire une note, supprimer. | CRUD local (IndexedDB) | « Créer, lire, modifier, supprimer, sans réseau. » |
 | 2:10 | Alertes : créer une alerte sur AAPL, la mettre en pause, la supprimer. | CRUD serveur (PostgreSQL) | « Ici c'est l'API : `POST`, `PATCH`, `DELETE` sur `/me/alerts`. » |
-| 2:50 | Chat : « C'est quoi un ETF ? », puis « Dois-je acheter AAPL ? ». | Bonus IA, refus du conseil | « La réponse est calculée en Python à partir des fiches et de la base. Ollama ne fait que reformuler, et sa sortie est rejetée si elle ne passe pas le contrôle. » |
+| 2:50 | Chat (`/chat`) : « C'est quoi un ETF ? », puis « Dois-je acheter AAPL ? ». Option : fiche AAPL → bouton chat → `/chat/AAPL` (Gemini si clé configurée). | Bonus IA, refus du conseil | « La réponse serveur est calculée en Python. Gemini (si activé) explique seulement les données fournies. Ollama ne fait que reformuler, et sa sortie est rejetée si elle ne passe pas le contrôle. » |
 | 3:40 | DevTools → Network → Offline, recharger. Ouvrir la watchlist, puis une adresse jamais visitée. | Hors ligne : bandeau, données en cache, page `/offline` | « Le service worker sert les pages précachées ; les données viennent d'IndexedDB. » |
 | 4:20 | Repasser en ligne. Icône d'installation de Chrome → Installer MarketPulse, rouvrir en fenêtre autonome. | PWA installable | « Manifest `standalone`, icônes 192 et 512. » |
 | 4:30 | Profil : cocher « Recevoir aussi mes notifications par e-mail », Enregistrer, « Envoyer une notification de test », ouvrir Mailpit. | Notifications par e-mail, même déconnecté | « Le serveur envoie ; pas besoin d'être connecté. En local, le message arrive dans Mailpit. » |
@@ -37,11 +37,11 @@ Avant de commencer : `docs/CHECKLIST_VEILLE.md`.
 4. Saisir le code : connexion directe, les autres sessions sont fermées.
 5. Si Mailpit ne répond pas : `docker logs finsight-backend --tail 20` n'affiche le code que si `SMTP_HOST` est vide. Avec Mailpit configuré, relancer Mailpit plutôt que chercher dans les logs.
 
-**Le site local ne démarre pas.** Ouvrir https://marketpulse-zeta-jet.vercel.app, « Continuer en mode démo » : installation, hors ligne et watchlist se montrent là. Dire clairement que ce lien n'a pas d'API : pas de compte, pas de chat, pas d'alertes serveur.
+**Le site local ne démarre pas.** Ouvrir https://marketpulse-zeta-jet.vercel.app (API via tunnel/Render si allumés). Sinon « Continuer en mode démo » : PWA, hors ligne, watchlist locale.
 
 ## À ne pas dire
 
-- Que le lien public est le produit complet.
+- Que le lien public marche sans Docker/tunnel (ou Render) allumé.
 - Que le modèle prédit quoi que ce soit.
 - Que les notifications push ou la connexion Google fonctionnent : elles ne sont ni configurées ni testées.
 - Que le code arrive dans une vraie boîte mail, sauf si l'envoi réel a été configuré et essayé avant.

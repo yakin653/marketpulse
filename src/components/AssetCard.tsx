@@ -19,7 +19,7 @@ type CardAsset = {
   date?: string | null;
 };
 
-export default function AssetCard({ asset }: { asset: CardAsset }) {
+export default function AssetCard({ asset, tourTarget }: { asset: CardAsset; tourTarget?: boolean }) {
   const { score } = calculatePulseScore(asset);
   const price = typeof asset.prix_actuel === "number" && asset.prix_actuel > 0 ? asset.prix_actuel : null;
   const change = asset.variation_1j_pct;
@@ -32,6 +32,7 @@ export default function AssetCard({ asset }: { asset: CardAsset }) {
   return (
     <Link
       href={`/asset/${asset.symbol}`}
+      data-tour={tourTarget ? "company-card" : undefined}
       className="bg-[var(--surface)] p-5 rounded-xl border border-gray-800 hover:border-[var(--accent)] transition-colors flex justify-between items-center gap-3 min-w-0 group"
     >
       <div className="min-w-0">

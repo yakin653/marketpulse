@@ -1,52 +1,56 @@
-# Soutenance publique (hors local)
+# Soutenance publique
 
-Objectif : présenter sur **https://marketpulse-zeta-jet.vercel.app** avec comptes, alertes et chat réels.
+Lien à ouvrir : **https://marketpulse-zeta-jet.vercel.app**
 
-Chaîne : **Vercel (site) → Render (API) → Neon (PostgreSQL)**.
+## État actuel (chemin qui marche)
 
-## Déjà prêt
+Chaîne temporaire (PC allumé) :
 
-- Site Vercel en ligne (pages, PWA, mode démo).
-- Code API sur GitHub (`finsight`, `render.yaml`).
-- Base Neon créée (`my-first-project`) — tables créées au 1er démarrage Render.
-- Chaîne Neon au format Render (`postgresql+psycopg://…?sslmode=require`) : **dans le presse-papiers** (ou `NEON_DATABASE_URL` dans `finsight/.env`).
+**Vercel (site) → tunnel Cloudflare → Docker FastAPI local → Postgres local**
 
-## À faire une fois (toi : connexion GitHub)
+- Compte démo : `yakinnmiri@gmail.com` / `yyyyyyyy` (8 lettres y)
+- API publique via `/api/health` et login : OK tant que Docker + `cloudflared` tournent
+- Chat serveur (Python) : menu **Chat** → `/chat`
+- Chat Gemini (Fatime) : bouton sur une fiche actif → `/chat/AAPL` (nécessite `GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel)
 
-### 1. Render — déployer l’API
+## Jour J — checklist 10 minutes avant
 
-1. Ouvre https://dashboard.render.com et connecte-toi avec **GitHub**.
-2. **New → Blueprint** → dépôt **`finsight`** (branche `main`, fichier `render.yaml`).
-3. Quand `DATABASE_URL` est demandée : **Ctrl+V** (valeur déjà dans le presse-papiers).
-4. **Apply**. Attends la fin du build (plusieurs minutes).
-5. Note l’URL du service (ex. `https://marketpulse-api.onrender.com`).
-6. Vérifie : `https://TON-URL/health` → `{"status":"ok",…}`.
+1. Docker Desktop démarré ; dans `finsight` : `docker compose up -d`
+2. Vérifier `http://127.0.0.1:8000/health` → `{"status":"ok",…}`
+3. Tunnel : processus `cloudflared` vers `http://127.0.0.1:8000`
+   - URL figée dans `next.config.ts` (fallback Vercel) : `america-grammar-interact-winning.trycloudflare.com`
+   - Si tu **relances** cloudflared, l’URL change → mets à jour `API_PROXY_TARGET` sur Vercel **ou** le fallback dans `next.config.ts`, puis **Redeploy**
+4. Smoke : ouvrir https://marketpulse-zeta-jet.vercel.app → login → dashboard → alertes → chat
+5. Option Gemini : clé AI Studio dans Vercel (`GOOGLE_GENERATIVE_AI_API_KEY`, `FASTAPI_URL` = URL tunnel ou Render, `GEMINI_MODEL=gemini-3.5-flash-lite`) + Redeploy
 
-Option soutenance (codes « mot de passe oublié » dans les logs) : sur le service Render, ajoute `DEV_LOG_RESET_LINKS=true`, redémarre. Retire-la après.
+## Cible durable (quand tu as 15 min Render)
 
-### 2. Vercel — brancher l’API
+**Vercel → Render (API) → Neon (Postgres)** — plus besoin du PC ni du tunnel.
 
-1. Projet **marketpulse** → **Settings → Environment Variables**.
-2. Production : `API_PROXY_TARGET` = URL Render **sans** slash final.
-3. Garde `NEXT_PUBLIC_API_URL` = `/api` si déjà présent.
-4. **Deployments → Redeploy** (obligatoire : les rewrites sont figés au build).
+1. https://dashboard.render.com → GitHub → Blueprint dépôt **finsight** (`render.yaml`)
+2. `DATABASE_URL` = valeur `NEON_DATABASE_URL` de `finsight/.env` (déjà au format `postgresql+psycopg://…?sslmode=require`)
+3. Sur Vercel : `API_PROXY_TARGET` = URL Render (sans slash) → Redeploy
+4. 5 min avant la soutenance : ouvrir `/health` Render (réveil free tier)
 
-### 3. Smoke test (lien public)
+## Smoke test public
 
-Sur https://marketpulse-zeta-jet.vercel.app :
+1. Login avec le compte préparé
+2. Dashboard + fiche AAPL (Pulse Score)
+3. Alertes : créer / pause / supprimer
+4. Chat `/chat` : « Quel est le prix de AAPL ? » puis « Dois-je acheter AAPL ? » (refus du conseil)
+5. Option : `/chat/AAPL` Gemini si la clé est configurée
+6. `/status` : API et base OK
+7. Mode hors ligne (DevTools) + PWA installable
 
-1. `/register` → créer un compte.
-2. Login → dashboard avec cours.
-3. Alertes : créer / supprimer.
-4. Chat : « Quel est le prix de AAPL ? »
-5. `/status` : API et base OK.
+## Phrases utiles
 
-## Jour J
+- « Le navigateur ne parle qu’à `/api` sur le même site ; Next relaie vers FastAPI. »
+- « Le Pulse Score est calculé en local (MM / volatilité / drawdown), pas par l’IA. »
+- « Le chat serveur est déterministe (Python) ; Gemini explique les données fournies, sans inventer de cours. »
+- « Ce n’est pas un conseil d’investissement. »
 
-1. 5 minutes avant : ouvrir `https://TON-API.onrender.com/health` (réveil du free tier, ~1 min au 1er coup).
-2. Présenter sur le **lien Vercel** (téléphone ou DevTools mobile).
-3. Dire clairement : chat = texte déterministe Python (pas d’Ollama sur Render).
+## Si l’API publique tombe
 
-## Si Render n’est pas encore prêt
-
-Le lien Vercel reste utilisable en **mode démo** (PWA, hors ligne, watchlist locale) — sans comptes ni chat serveur. Dire : « L’API publique se déploie ; en salle on peut aussi basculer en local. »
+1. Dire : mode démo / cache / watchlist locale.
+2. Relancer Docker + cloudflared, ou basculer sur Render si déjà déployé.
+3. En salle : fallback local http://localhost:3000 (`npm start` après build).

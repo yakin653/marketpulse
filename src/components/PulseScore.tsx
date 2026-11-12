@@ -9,7 +9,7 @@ export default function PulseScore({ score }: { score: number | null }) {
   const data = [{ name: "Score", value: shown, fill }];
 
   return (
-    <div className="relative flex items-center justify-center w-32 h-32 shrink-0" aria-label={known ? `Pulse Score ${score} sur 100` : "Pulse Score indisponible"}>
+    <div data-tour="pulse-gauge" className="relative flex items-center justify-center w-32 h-32 shrink-0" aria-label={known ? `Pulse Score ${score} sur 100` : "Pulse Score indisponible"}>
       <RadialBarChart width={128} height={128} cx={64} cy={64} innerRadius={48} outerRadius={62} barSize={10} data={data} startAngle={90} endAngle={-270}>
         <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
         <RadialBar background dataKey="value" cornerRadius={6} />

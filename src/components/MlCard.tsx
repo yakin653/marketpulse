@@ -12,7 +12,7 @@ type Props = {
 export default function MlCard({ probability, baseline, accuracy, message, warning, observations }: Props) {
   if (probability == null) {
     return (
-      <div className="bg-[var(--surface)] p-6 rounded-xl border border-gray-800 h-full min-h-[180px] flex flex-col justify-center gap-3">
+      <div data-tour="model-card" className="bg-[var(--surface)] p-6 rounded-xl border border-gray-800 h-full min-h-[180px] flex flex-col justify-center gap-3">
         <div className="flex items-center gap-2 text-gray-300">
           <BrainCircuit size={20} className="text-[var(--accent)]" />
           <h2 className="text-lg font-bold">Probabilité du modèle</h2>
@@ -35,7 +35,7 @@ export default function MlCard({ probability, baseline, accuracy, message, warni
   const stance = bullish ? "Au-dessus de 60 %" : bearish ? "Sous 40 %" : "Entre 40 et 60 %";
 
   return (
-    <div className="bg-[var(--surface)] p-6 rounded-xl border border-gray-800 h-full flex flex-col">
+    <div data-tour="model-card" className="bg-[var(--surface)] p-6 rounded-xl border border-gray-800 h-full flex flex-col">
       <div className="flex items-center gap-2 mb-4 text-gray-300">
         <BrainCircuit size={20} className="text-[var(--accent)]" />
         <h2 className="text-lg font-bold">Probabilité du modèle</h2>

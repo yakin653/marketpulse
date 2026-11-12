@@ -7,10 +7,14 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "check": "npm run lint && npx tsc --noEmit && node --experimental-strip-types --test scripts/pulse.test.ts && npm run build"
+    "test": "node --experimental-strip-types --test scripts/pulse.test.ts scripts/tour-engine.test.ts",
+    "check": "npm run lint && npx tsc --noEmit && npm test && npm run build"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.118",
+    "@ai-sdk/react": "^4.0.174",
     "@serwist/next": "^9.5.13",
+    "ai": "^7.0.170",
     "axios": "^1.20.0",
     "idb": "^8.0.4",
     "lucide-react": "^1.61.0",
@@ -18,7 +22,8 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "recharts": "^3.10.1",
-    "serwist": "^9.5.13"
+    "serwist": "^9.5.13",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

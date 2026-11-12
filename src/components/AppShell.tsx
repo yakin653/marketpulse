@@ -24,6 +24,7 @@ import { hasEntered, useAuth } from "@/lib/auth";
 import { http } from "@/lib/http";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useToast } from "@/components/Toast";
+import { useTour } from "@/components/tour/TourProvider";
 
 const BARE = new Set(["/", "/login", "/register", "/forgot-password", "/reset-password"]);
 
@@ -86,9 +87,11 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
   const online = useOnlineStatus();
   const router = useRouter();
   const { push } = useToast();
+  const { startTour } = useTour();
   const [open, setOpen] = useState(true);
   const [more, setMore] = useState(false);
   const [palette, setPalette] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [unread, setUnread] = useState(0);
   const [fresh, setFresh] = useState("fraîcheur inconnue");
@@ -151,7 +154,7 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
               <Menu size={18} />
             </button>
           </div>
-          <nav className="flex flex-col gap-1 px-2">
+          <nav className="flex flex-col gap-1 px-2" data-tour="nav-main">
             {pages.map((page) => {
               const Icon = page.icon;
               return (
@@ -167,17 +170,27 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="border-b border-gray-800 px-4 py-3 flex items-center gap-3">
           {!user && <Link href="/" className="font-bold shrink-0">MarketPulse</Link>}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0" data-tour="global-search">
             <SearchBar compact />
           </div>
           <p className="hidden lg:block text-xs text-gray-400 shrink-0">{online ? fresh : "hors ligne"}</p>
-          <span className={`text-xs shrink-0 ${online ? "text-emerald-300" : "text-amber-200"}`}>{online ? "en ligne" : "hors ligne"}</span>
+          <span data-tour="online-indicator" className={`text-xs shrink-0 ${online ? "text-emerald-300" : "text-amber-200"}`}>{online ? "en ligne" : "hors ligne"}</span>
           {user ? (
             <>
-              <Link href="/notifications" className="relative min-h-11 min-w-11 inline-flex items-center justify-center" aria-label="Notifications">
+              <Link href="/notifications" data-tour="notif-bell" className="relative min-h-11 min-w-11 inline-flex items-center justify-center" aria-label="Notifications">
                 <Bell size={18} />
                 {unread > 0 && <span className="absolute top-1 right-1 text-[10px] bg-red-500 text-white rounded-full px-1">{unread}</span>}
               </Link>
+              <div className="relative" data-tour="help-menu">
+                <button type="button" className="min-h-11 text-sm text-gray-300" aria-expanded={helpOpen} onClick={() => setHelpOpen((v) => !v)}>Aide</button>
+                {helpOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border border-gray-700 bg-[#161A1E] p-2 shadow-lg">
+                    <button type="button" className="min-h-11 w-full rounded-lg px-3 text-left text-sm hover:bg-gray-800" onClick={() => { setHelpOpen(false); startTour(); }}>Lancer la visite guidée</button>
+                    <Link href="/learn" className="min-h-11 flex items-center rounded-lg px-3 text-sm hover:bg-gray-800" onClick={() => setHelpOpen(false)}>Page Méthode</Link>
+                  </div>
+                )}
+              </div>
+              <button type="button" className="min-h-11 text-sm" onClick={() => { startTour(); }}>Visite</button>
               <button type="button" className="min-h-11 text-sm" onClick={signOut}>Quitter</button>
             </>
           ) : (
@@ -193,7 +206,7 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
         </main>
       </div>
       {user && (
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[var(--surface)] border-t border-gray-800 flex justify-around">
+        <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[var(--surface)] border-t border-gray-800 flex justify-around" data-tour="nav-main">
           {mobile.map((page) => {
             const Icon = page.icon;
             return (
@@ -221,6 +234,7 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
             <Link className="min-h-11 flex items-center" href="/academy" onClick={() => setMore(false)}>Académie</Link>
             <Link className="min-h-11 flex items-center" href="/status" onClick={() => setMore(false)}>État</Link>
             <Link className="min-h-11 flex items-center" href="/profile" onClick={() => setMore(false)}>Profil</Link>
+            <button type="button" className="min-h-11" onClick={() => { setMore(false); startTour(); }}>Lancer la visite guidée</button>
             <button type="button" className="min-h-11" onClick={signOut}>Quitter</button>
           </div>
         </div>
@@ -243,6 +257,11 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
               </button>
             )}
             <ul className="mt-3 space-y-1">
+              <li>
+                <button type="button" className="min-h-11 flex w-full items-center text-left text-[var(--accent)]" onClick={() => { setPalette(false); startTour(); }}>
+                  Lancer la visite guidée
+                </button>
+              </li>
               {hits.map((page) => (
                 <li key={page.href}>
                   <Link href={page.href} className="min-h-11 flex items-center" onClick={() => setPalette(false)}>{page.label}</Link>

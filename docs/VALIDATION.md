@@ -13,6 +13,7 @@ Chaque ligne donne la commande et le résultat observé. Ce qui n'a pas été v�
 | Mobile d'abord | Présent dans le code | Onglets en bas sous 768 px (`src/components/AppShell.tsx`), `viewport` dans `src/app/layout.tsx`. |
 | Bonus IA | Vérifié | Banc de 60 questions, 100 % par mode (`finsight/docs/chat-evaluation.md`). |
 | Hébergement Vercel | Vérifié, démo sans API | Voir « Site public ». |
+| Visite guidée | Présent dans le code / tests moteur | `docs/walkthrough.md` ; `npm test` couvre sélection d'étapes, placement, persistance et garde-fou `data-tour`. Rendu navigateur : à cocher le jour J. |
 
 ## Site (`marketpulse`)
 

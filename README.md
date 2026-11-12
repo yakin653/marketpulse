@@ -39,7 +39,7 @@ Ouvrir http://localhost:3000.
 npm run check
 ```
 
-Enchaîne `eslint`, `tsc --noEmit`, le test du Pulse Score (`scripts/pulse.test.ts`) et `next build --webpack`. Le build génère `public/sw.js` (ignoré par Git).
+Enchaîne `eslint`, `tsc --noEmit`, `npm test` (Pulse Score + moteur de visite guidée) et `next build --webpack`. Le build génère `public/sw.js` (ignoré par Git).
 
 ## Architecture
 
@@ -86,6 +86,7 @@ Le Pulse Score (`src/lib/pulse.ts`) pondère la position face aux moyennes mobil
 
 - `docs/VALIDATION.md` : ce qui a été vérifié, avec les commandes.
 - `docs/DEMO.md` : démonstration en 5 minutes et plans B.
+- `docs/walkthrough.md` : visite guidée (étapes, rejouer, ajouter une étape).
 - `docs/QUESTIONS_JURY.md` : 15 questions probables et où trouver la réponse dans le code.
 - `docs/CHECKLIST_VEILLE.md` : à faire la veille et le matin.
 - `docs/DEPLOY-VERCEL.md` : déploiement du site.

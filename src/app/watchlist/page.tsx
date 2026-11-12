@@ -47,7 +47,7 @@ function WatchlistBody() {
       <div className="flex flex-col sm:flex-row gap-2">
         <input value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="Symbole (ex: AAPL)" className="flex-1 rounded-lg bg-[#161A1E] border border-gray-800 px-3 py-2 text-white" />
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom entreprise" className="flex-1 rounded-lg bg-[#161A1E] border border-gray-800 px-3 py-2 text-white" />
-        <button type="button" onClick={onAdd} className="rounded-lg bg-[var(--accent)] hover:bg-blue-600 px-4 py-2 flex items-center justify-center gap-1 text-white font-medium transition-colors">
+        <button type="button" data-tour="watchlist-add" onClick={onAdd} className="rounded-lg bg-[var(--accent)] hover:bg-blue-600 px-4 py-2 flex items-center justify-center gap-1 text-white font-medium transition-colors">
           <Plus size={16} /> Ajouter
         </button>
       </div>

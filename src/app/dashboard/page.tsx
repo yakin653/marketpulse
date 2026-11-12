@@ -60,6 +60,7 @@ export default function DashboardPage() {
   const favorites = new Set(user?.profile?.favorite_symbols ?? []);
   const forYou = assets.filter((asset) => favorites.has(asset.symbol));
   const others = assets.filter((asset) => !favorites.has(asset.symbol));
+  const firstTourSymbol = forYou[0]?.symbol ?? others[0]?.symbol ?? null;
 
   return (
     <div className="max-w-6xl mx-auto pb-10">
@@ -75,7 +76,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-[var(--surface)] border border-gray-800 p-4 rounded-xl flex items-center gap-4 w-full lg:w-auto">
+        <div data-tour="market-mood" className="bg-[var(--surface)] border border-gray-800 p-4 rounded-xl flex items-center gap-4 w-full lg:w-auto">
           <div className="min-w-0">
             <p className="text-sm text-gray-400 font-medium">Market Mood</p>
             <p className="text-3xl font-bold text-[var(--accent)] num">{marketMood == null ? "—" : `${marketMood} / 100`}</p>
@@ -93,7 +94,9 @@ export default function DashboardPage() {
           <h2 className="text-xl font-bold mb-3">Pour vous</h2>
           <p className="text-xs text-gray-500 mb-3">Les symboles favoris du profil passent en premier. Ce n&apos;est pas une sélection d&apos;investissement.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {forYou.map((asset) => <AssetCard key={asset.symbol} asset={asset} />)}
+            {forYou.map((asset) => (
+              <AssetCard key={asset.symbol} asset={asset} tourTarget={asset.symbol === firstTourSymbol} />
+            ))}
           </div>
         </section>
       )}
@@ -116,7 +119,11 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {others.map((asset) => (
-            <AssetCard key={asset.symbol} asset={asset} />
+            <AssetCard
+              key={asset.symbol}
+              asset={asset}
+              tourTarget={forYou.length === 0 && asset.symbol === firstTourSymbol}
+            />
           ))}
         </div>
       )}

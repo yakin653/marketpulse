@@ -8,14 +8,14 @@ export default function PriceChart({ data, anomalies = [] }: { data: Point[]; an
   const points = (data || []).filter((point) => typeof point.close === "number");
   if (points.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-500 bg-[#0B0E11] rounded-lg border border-gray-800 text-center px-4">
+      <div data-tour="price-chart" className="h-64 flex items-center justify-center text-gray-500 bg-[#0B0E11] rounded-lg border border-gray-800 text-center px-4">
         Pas assez de cours pour tracer le graphique.
       </div>
     );
   }
 
   return (
-    <div className="h-72 w-full mt-2">
+    <div data-tour="price-chart" className="h-72 w-full mt-2">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={points} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid stroke="#1f2937" vertical={false} />

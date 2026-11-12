@@ -150,10 +150,11 @@ function ChatScreen() {
       <section>
         <h1 className="text-2xl font-bold mb-1">Chat</h1>
         <p className="text-xs text-gray-500 mb-3">Informations pédagogiques. Les chiffres viennent des faits calculés ou d&apos;une fiche.</p>
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div data-tour="chat-suggestions" className="flex flex-wrap gap-2 mb-3">
           {suggestions(user?.profile?.level, symbol).map((item) => (
             <button key={item} type="button" className="min-h-11 text-sm border border-gray-700 rounded-full px-3" onClick={() => send(item)}>{item}</button>
           ))}
+          <p className="w-full text-xs text-gray-500">Après une réponse, les faits utilisés expliquent le « Pourquoi cette réponse ? ».</p>
         </div>
         <div className="space-y-3 mb-4" aria-live="polite">
           {messages.length === 0 && <p className="text-sm text-gray-400">Pose une question sur un cours, une notion ou la méthode. Hors de ce cadre, le chat le dira.</p>}

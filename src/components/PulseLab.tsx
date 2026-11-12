@@ -19,7 +19,7 @@ export default function PulseLab({ parts }: { parts: PulsePart[] }) {
   const score = Math.round(WEIGHTS.reduce((sum, item) => sum + notes[item.key] * item.poids, 0));
 
   return (
-    <section className="bg-[var(--surface)] border border-gray-800 rounded-xl p-6 space-y-4">
+    <section data-tour="pulse-lab" className="bg-[var(--surface)] border border-gray-800 rounded-xl p-6 space-y-4">
       <h2 className="text-xl font-bold">Pourquoi ce score ?</h2>
       <p className="text-sm text-gray-400">Les curseurs « Et si… ? » recalculent le score dans le navigateur. Ils ne prédisent pas un cours.</p>
       <p className="text-3xl font-bold num">{score} / 100</p>
