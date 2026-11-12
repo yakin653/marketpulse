@@ -153,7 +153,7 @@ export default function AssetPage({ params }: { params: Promise<{ symbol: string
         </div>
       </div>
 
-      <div className="bg-[var(--surface)] p-6 rounded-xl border border-gray-800">
+      <div className="bg-[var(--surface)] p-4 sm:p-6 rounded-xl border border-gray-800 min-w-0 overflow-hidden">
         <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
           <h2 className="text-xl font-bold">Historique des clôtures</h2>
           {sourceHistory !== "network" && <SourceBadge source={sourceHistory} />}

@@ -16,7 +16,7 @@ const scriptSrc = process.env.NODE_ENV === "development"
 // Note : on n'utilise PAS API_PROXY_TARGET sur Vercel ici — une vieille valeur
 // (ancien cloudflared) bloquait le téléphone. Remettre Render plus tard.
 const apiTarget = process.env.VERCEL
-  ? "https://91415d281db132.lhr.life"
+  ? "https://3a8fbc42751d89.lhr.life"
   : (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000");
 
 const nextConfig: NextConfig = {
