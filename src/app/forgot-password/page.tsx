@@ -7,7 +7,7 @@ import axios from "axios";
 import AuthFrame from "@/components/AuthFrame";
 import { markEntered, useAuth } from "@/lib/auth";
 import { saveCache } from "@/lib/db";
-import { errorText, http } from "@/lib/http";
+import { apiUnreachable, errorText, http } from "@/lib/http";
 
 type MailMode = "smtp" | "local" | "logs";
 
@@ -27,10 +27,13 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [mail, setMail] = useState<MailMode>("smtp");
+  const [apiDown, setApiDown] = useState(false);
 
   // L'API dit où part le message : vraie boîte, boîte de test locale, ou journal.
   useEffect(() => {
-    http.get<{ mail?: MailMode }>("/auth/providers").then((res) => setMail(res.data.mail ?? "smtp")).catch(() => setMail("smtp"));
+    http.get<{ mail?: MailMode }>("/auth/providers")
+      .then((res) => { setMail(res.data.mail ?? "smtp"); setApiDown(false); })
+      .catch(() => { setMail("smtp"); setApiDown(true); });
   }, []);
 
   async function sendCode() {
@@ -46,7 +49,11 @@ export default function ForgotPasswordPage() {
     try {
       await sendCode();
     } catch (err) {
-      setError(errorText(err, "Envoi impossible."));
+      setError(
+        apiUnreachable(err)
+          ? "L'API n'est pas joignable. Le code ne peut partir que si l'API tourne (en local : Docker)."
+          : errorText(err, "Envoi impossible."),
+      );
     } finally {
       setLoading(false);
     }
@@ -59,7 +66,11 @@ export default function ForgotPasswordPage() {
     try {
       await sendCode();
     } catch (err) {
-      setError(errorText(err, "Envoi impossible."));
+      setError(
+        apiUnreachable(err)
+          ? "L'API n'est pas joignable. Le code ne peut partir que si l'API tourne (en local : Docker)."
+          : errorText(err, "Envoi impossible."),
+      );
     } finally {
       setLoading(false);
     }
@@ -76,7 +87,9 @@ export default function ForgotPasswordPage() {
       markEntered();
       router.push(res.data.onboarding_completed ? "/dashboard" : "/onboarding");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 429) {
+      if (apiUnreachable(err)) {
+        setError("L'API n'est pas joignable. Vérifie que Docker tourne, ou utilise le mode démo.");
+      } else if (axios.isAxiosError(err) && err.response?.status === 429) {
         setError("Trop de tentatives. Demande un nouveau code.");
       } else if (axios.isAxiosError(err) && err.response?.status === 401) {
         setError("Code invalide ou expiré.");
@@ -93,11 +106,12 @@ export default function ForgotPasswordPage() {
       {step === "email" ? (
         <form onSubmit={onSend} className="space-y-4">
           <p className="text-sm text-gray-400">On t&apos;envoie un code à 6 chiffres. La réponse est la même, que l&apos;adresse existe ou non.</p>
+          {apiDown && <p className="text-sm text-amber-200" role="status">L&apos;API n&apos;est pas joignable pour le moment. En local, lance Docker ; sur le lien public, l&apos;API n&apos;est pas encore hébergée.</p>}
           <label className="block text-sm text-gray-200">E-mail
             <input className="mt-1.5 w-full min-h-12 rounded-lg border border-cyan-300/80 bg-[#071018]/80 px-3 text-sm text-white outline-none" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
           </label>
           {error && <p className="text-sm text-red-300" role="alert">{error}</p>}
-          <button type="submit" className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading}>{loading ? "Envoi…" : "Recevoir un code"}</button>
+          <button type="submit" className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading || apiDown}>{loading ? "Envoi…" : "Recevoir un code"}</button>
           <Link href="/login" className="inline-flex min-h-11 items-center text-sm text-cyan-300">Retour à la connexion</Link>
         </form>
       ) : (

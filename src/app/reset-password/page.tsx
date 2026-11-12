@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import AuthFrame from "@/components/AuthFrame";
-import { errorText, http } from "@/lib/http";
+import { apiUnreachable, errorText, http } from "@/lib/http";
 
 function ResetForm() {
   const params = useSearchParams();
@@ -27,7 +27,11 @@ function ResetForm() {
       await http.post("/auth/reset-password", { token, password });
       setDone(true);
     } catch (err) {
-      setError(errorText(err, "Lien invalide ou expiré."));
+      if (apiUnreachable(err)) {
+        setError("L'API n'est pas joignable. Le nouveau flux utilise un code à 6 chiffres : passe par « Mot de passe oublié ».");
+      } else {
+        setError(errorText(err, "Lien invalide ou expiré. Demande un nouveau code via « Mot de passe oublié »."));
+      }
     } finally {
       setLoading(false);
     }
