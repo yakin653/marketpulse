@@ -12,21 +12,14 @@ const scriptSrc = process.env.NODE_ENV === "development"
   ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
   : "script-src 'self' 'unsafe-inline'";
 
-// Local : API Docker. Sur Vercel : tunnel public vers le PC (soutenance).
-// Note : on n'utilise PAS API_PROXY_TARGET sur Vercel ici — une vieille valeur
-// (ancien cloudflared) bloquait le téléphone. Remettre Render plus tard.
-const apiTarget = process.env.VERCEL
-  ? "https://shiny-poets-stare.loca.lt"
-  : (process.env.API_PROXY_TARGET || "http://127.0.0.1:8000");
-
 const nextConfig: NextConfig = {
   turbopack: {},
   experimental: {
-    // proxy-request.js de Next 16.4 : sans cette valeur, un rewrite est coupé à 30 s.
-    // Le chat peut attendre Ollama plus longtemps.
+    // chat / proxy peuvent dépasser 30 s
     proxyTimeout: 120_000,
   },
   // Le navigateur parle à /api sur le même site : le cookie de session part avec la requête.
+  // Le proxy FastAPI est dans src/app/api/[[...path]]/route.ts (header Bypass-Tunnel-Reminder).
   async headers() {
     return [{
       source: "/:path*",
@@ -37,9 +30,6 @@ const nextConfig: NextConfig = {
         { key: "Content-Security-Policy", value: `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; ${scriptSrc}; connect-src 'self'; frame-ancestors 'none'` },
       ],
     }];
-  },
-  async rewrites() {
-    return [{ source: "/api/:path*", destination: `${apiTarget.replace(/\/$/, "")}/:path*` }];
   },
 };
 
