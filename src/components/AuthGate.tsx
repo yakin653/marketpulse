@@ -63,15 +63,25 @@ export default function AuthGate({ initialMode }: { initialMode: Mode }) {
     }
     setLoading(true);
     try {
+      async function postAuth(path: string, payload: object) {
+        try {
+          return await http.post(path, payload, { timeout: 25000 });
+        } catch (first) {
+          // Tunnel / cold start Vercel : 1 retry rapide
+          if (!apiUnreachable(first)) throw first;
+          await new Promise((r) => setTimeout(r, 800));
+          return await http.post(path, payload, { timeout: 25000 });
+        }
+      }
       if (mode === "login") {
-        const res = await http.post("/auth/login", { email, password, remember });
-        await saveCache("auth-me", res.data);
+        const res = await postAuth("/auth/login", { email, password, remember });
+        await saveCache("auth-me", res.data).catch(() => undefined);
         setUser(res.data);
         markEntered();
         router.push(res.data.onboarding_completed ? "/dashboard" : "/onboarding");
       } else {
-        const res = await http.post("/auth/register", { email, password, display_name: displayName });
-        await saveCache("auth-me", res.data);
+        const res = await postAuth("/auth/register", { email, password, display_name: displayName });
+        await saveCache("auth-me", res.data).catch(() => undefined);
         setUser(res.data);
         markEntered();
         router.push("/onboarding");
