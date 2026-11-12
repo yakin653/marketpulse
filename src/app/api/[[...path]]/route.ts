@@ -16,7 +16,7 @@ function backendBase(): string {
     // Le tunnel SSH courant est prioritaire ; API_TUNNEL_URL peut le remplacer.
     return (
       process.env.API_TUNNEL_URL?.trim() ||
-      "https://5e6ada983b8d33.lhr.life"
+      "https://7a97daf774754a.lhr.life"
     ).replace(/\/$/, "");
   }
   return (
