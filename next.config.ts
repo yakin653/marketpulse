@@ -17,7 +17,7 @@ const scriptSrc = process.env.NODE_ENV === "development"
 const apiTarget =
   process.env.API_PROXY_TARGET ||
   (process.env.VERCEL
-    ? "https://america-grammar-interact-winning.trycloudflare.com"
+    ? "https://ec529a9d9711a4.lhr.life"
     : "http://127.0.0.1:8000");
 
 const nextConfig: NextConfig = {

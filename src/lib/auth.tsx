@@ -91,7 +91,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let alive = true;
-    http.get<Account>("/auth/me").then(async (res) => {
+    // Sur mobile, un /auth/me qui pend (API/tunnel down) laissait un écran noir.
+    const boot = http.get<Account>("/auth/me", { timeout: 8000 });
+    const failSafe = window.setTimeout(() => {
+      if (alive) setReady(true);
+    }, 9000);
+    boot.then(async (res) => {
       if (!alive) return;
       await saveCache("auth-me", res.data);
       setUser(res.data);
@@ -103,8 +108,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (account) setUser(account);
       else setUser(null);
       setReady(true);
+    }).finally(() => {
+      window.clearTimeout(failSafe);
     });
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      window.clearTimeout(failSafe);
+    };
   }, []);
 
   const enterDemo = useCallback(async () => {

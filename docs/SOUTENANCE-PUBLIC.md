@@ -17,9 +17,9 @@ Chaîne temporaire (PC allumé) :
 
 1. Docker Desktop démarré ; dans `finsight` : `docker compose up -d`
 2. Vérifier `http://127.0.0.1:8000/health` → `{"status":"ok",…}`
-3. Tunnel : processus `cloudflared` vers `http://127.0.0.1:8000`
-   - URL figée dans `next.config.ts` (fallback Vercel) : `america-grammar-interact-winning.trycloudflare.com`
-   - Si tu **relances** cloudflared, l’URL change → mets à jour `API_PROXY_TARGET` sur Vercel **ou** le fallback dans `next.config.ts`, puis **Redeploy**
+3. Tunnel public vers l’API locale (`ssh` localhost.run ou localtunnel) — le PC doit rester allumé
+   - URL figée dans `next.config.ts` (fallback Vercel) : voir la valeur `trycloudflare` / `lhr.life` / `loca.lt` actuelle
+   - Si tu **relances** le tunnel, l’URL change → mets à jour `API_PROXY_TARGET` sur Vercel **ou** le fallback dans `next.config.ts`, puis **Redeploy**
 4. Smoke : ouvrir https://marketpulse-zeta-jet.vercel.app → login → dashboard → alertes → chat
 5. Option Gemini : clé AI Studio dans Vercel (`GOOGLE_GENERATIVE_AI_API_KEY`, `FASTAPI_URL` = URL tunnel ou Render, `GEMINI_MODEL=gemini-3.5-flash-lite`) + Redeploy
 

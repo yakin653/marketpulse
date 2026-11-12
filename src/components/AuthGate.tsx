@@ -78,7 +78,7 @@ export default function AuthGate({ initialMode }: { initialMode: Mode }) {
       }
     } catch (err) {
       if (apiUnreachable(err)) {
-        setError("Connexion impossible pour le moment. Réessaie, ou ouvre http://localhost:3000.");
+        setError("API indisponible pour le moment. Réessaie dans quelques secondes (le serveur se réveille).");
       } else if (mode === "login" && axios.isAxiosError(err) && err.response?.status === 429) {
         setError("Trop de tentatives. Réessaie dans une minute.");
       } else if (mode === "login" && axios.isAxiosError(err) && err.response?.status === 401) {
