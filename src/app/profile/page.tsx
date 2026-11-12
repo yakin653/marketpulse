@@ -24,6 +24,10 @@ function ProfileForm() {
   const [mailMode, setMailMode] = useState<"smtp" | "local" | "logs" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [pushState, setPushState] = useState<string | null>(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
 
   useEffect(() => {
     http.get<{ mail?: "smtp" | "local" | "logs" }>("/auth/providers")
@@ -62,6 +66,27 @@ function ProfileForm() {
     await http.delete("/me");
     await logout();
     router.push("/");
+  }
+
+  async function changePassword() {
+    setPasswordMessage(null);
+    if (newPassword.length < 8) {
+      setPasswordMessage("Le nouveau mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("La confirmation ne correspond pas.");
+      return;
+    }
+    try {
+      await http.post("/me/password", { current_password: currentPassword, password: newPassword });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordMessage("Mot de passe mis à jour.");
+    } catch (error) {
+      setPasswordMessage(errorText(error, "Changement impossible."));
+    }
   }
 
   async function enablePush() {
@@ -112,6 +137,22 @@ function ProfileForm() {
       </label>
       {message && <p className="text-sm text-gray-300">{message}</p>}
       <button type="button" className="px-4 py-2 bg-[var(--accent)] rounded-lg" onClick={save}>Enregistrer</button>
+
+      <div className="space-y-3 border-t border-gray-800 pt-4">
+        <h2 className="text-lg font-semibold">Changer le mot de passe</h2>
+        <label className="block text-sm">Mot de passe actuel
+          <input className="mt-1 w-full bg-[#0B0E11] border border-gray-700 rounded-lg px-3 py-2" type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
+        </label>
+        <label className="block text-sm">Nouveau mot de passe
+          <input className="mt-1 w-full bg-[#0B0E11] border border-gray-700 rounded-lg px-3 py-2" type="password" autoComplete="new-password" minLength={8} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
+        </label>
+        <label className="block text-sm">Confirmer le nouveau mot de passe
+          <input className="mt-1 w-full bg-[#0B0E11] border border-gray-700 rounded-lg px-3 py-2" type="password" autoComplete="new-password" minLength={8} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
+        </label>
+        {passwordMessage && <p className="text-sm text-gray-300">{passwordMessage}</p>}
+        <button type="button" className="px-4 py-2 border border-gray-700 rounded-lg" onClick={changePassword}>Mettre à jour le mot de passe</button>
+      </div>
+
       <div className="flex flex-wrap gap-2">
         <button type="button" className="px-4 py-2 border border-gray-700 rounded-lg" onClick={exportData}>Exporter mes données</button>
         <button type="button" className="px-4 py-2 border border-gray-700 rounded-lg" onClick={enablePush}>Activer le push</button>

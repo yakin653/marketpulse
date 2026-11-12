@@ -36,13 +36,12 @@ export default function AuthGate({ initialMode }: { initialMode: Mode }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [google, setGoogle] = useState(false);
-  const [apiDown, setApiDown] = useState(false);
   const score = strength(password);
 
   useEffect(() => {
     http.get<{ google: boolean }>("/auth/providers")
-      .then((res) => { setGoogle(res.data.google); setApiDown(false); })
-      .catch(() => { setGoogle(false); setApiDown(true); });
+      .then((res) => setGoogle(res.data.google))
+      .catch(() => setGoogle(false));
   }, []);
 
   function switchMode(next: Mode) {
@@ -79,7 +78,7 @@ export default function AuthGate({ initialMode }: { initialMode: Mode }) {
       }
     } catch (err) {
       if (apiUnreachable(err)) {
-        setError("L'API MarketPulse n'est pas joignable. Sur le lien public, elle n'est pas encore hébergée : utilise « Continuer en mode démo », ou ouvre http://localhost:3000 avec Docker lancé. En local, vérifie que Docker Desktop tourne.");
+        setError("Connexion impossible pour le moment. Réessaie, ou ouvre http://localhost:3000.");
       } else if (mode === "login" && axios.isAxiosError(err) && err.response?.status === 429) {
         setError("Trop de tentatives. Réessaie dans une minute.");
       } else if (mode === "login" && axios.isAxiosError(err) && err.response?.status === 401) {
@@ -107,11 +106,6 @@ export default function AuthGate({ initialMode }: { initialMode: Mode }) {
       <p className="mt-2 mb-6 text-center text-sm text-gray-300">
         {login ? "Bon retour. Accède à ton tableau de bord." : "Un compte suffit pour suivre les cours et les fiches."}
       </p>
-      {apiDown && (
-        <p className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-100" role="status">
-          L&apos;API n&apos;est pas joignable : la connexion réelle est indisponible. Utilise « Continuer en mode démo », ou ouvre http://localhost:3000 avec Docker lancé.
-        </p>
-      )}
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         {!login && (
           <label className="block text-sm text-gray-200">Nom affiché

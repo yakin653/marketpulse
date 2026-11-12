@@ -2,7 +2,9 @@
 
 Version longue (8 minutes). La version courte à présenter, avec les plans B, est `docs/DEMO.md`.
 
-URL publique : https://marketpulse-zeta-jet.vercel.app. C'est une démonstration **sans API** : les étapes 2 (compte réel), 4 et 6 ne fonctionnent qu'en local (http://localhost:3000).
+URL publique : https://marketpulse-zeta-jet.vercel.app.
+Pour la soutenance **hors local** (comptes + alertes + chat) : suivre `docs/SOUTENANCE-PUBLIC.md` (Render + Neon + `API_PROXY_TARGET`).
+Tant que l’API n’est pas branchée, le lien public reste en **mode démo** (sans `/api`) ; les étapes compte / alertes serveur / chat se font alors en local.
 
 ## Checklist exigée
 
