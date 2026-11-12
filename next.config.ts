@@ -12,8 +12,13 @@ const scriptSrc = process.env.NODE_ENV === "development"
   ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
   : "script-src 'self' 'unsafe-inline'";
 
-// Sur Vercel, définir API_PROXY_TARGET vers l'URL publique de l'API FastAPI.
-const apiTarget = process.env.API_PROXY_TARGET || "http://127.0.0.1:8000";
+// Sur Vercel : API_PROXY_TARGET (Render) prioritaire. Sinon tunnel temporaire vers l'API locale
+// (PC + Docker allumés). En local sans Vercel : backend Docker sur :8000.
+const apiTarget =
+  process.env.API_PROXY_TARGET ||
+  (process.env.VERCEL
+    ? "https://america-grammar-interact-winning.trycloudflare.com"
+    : "http://127.0.0.1:8000");
 
 const nextConfig: NextConfig = {
   turbopack: {},
