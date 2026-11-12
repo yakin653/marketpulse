@@ -47,7 +47,7 @@ function WatchlistBody() {
       <div className="flex flex-col sm:flex-row gap-2">
         <input value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="Symbole (ex: AAPL)" className="flex-1 rounded-lg bg-[#161A1E] border border-gray-800 px-3 py-2 text-white" />
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nom entreprise" className="flex-1 rounded-lg bg-[#161A1E] border border-gray-800 px-3 py-2 text-white" />
-        <button onClick={onAdd} className="rounded-lg bg-[var(--accent)] hover:bg-blue-600 px-4 py-2 flex items-center justify-center gap-1 text-white font-medium transition-colors">
+        <button type="button" onClick={onAdd} className="rounded-lg bg-[var(--accent)] hover:bg-blue-600 px-4 py-2 flex items-center justify-center gap-1 text-white font-medium transition-colors">
           <Plus size={16} /> Ajouter
         </button>
       </div>
@@ -68,11 +68,11 @@ function WatchlistBody() {
               </div>
               <div className="flex gap-3">
                 {editing === it.symbol ? (
-                  <button onClick={() => saveEdit(it.symbol)} className="text-green-400" aria-label={`Enregistrer ${it.symbol}`}><Check size={18} /></button>
+                  <button type="button" onClick={() => saveEdit(it.symbol)} className="text-green-400" aria-label={`Enregistrer ${it.symbol}`}><Check size={18} /></button>
                 ) : (
-                  <button onClick={() => startEdit(it)} className="text-blue-400" aria-label={`Modifier ${it.symbol}`}><Pencil size={18} /></button>
+                  <button type="button" onClick={() => startEdit(it)} className="text-blue-400" aria-label={`Modifier ${it.symbol}`}><Pencil size={18} /></button>
                 )}
-                <button onClick={() => onDelete(it.symbol)} className="text-red-400" aria-label={`Supprimer ${it.symbol}`}><Trash2 size={18} /></button>
+                <button type="button" onClick={() => onDelete(it.symbol)} className="text-red-400" aria-label={`Supprimer ${it.symbol}`}><Trash2 size={18} /></button>
               </div>
             </div>
             {editing === it.symbol && (

@@ -16,7 +16,8 @@ Avant de commencer : `docs/CHECKLIST_VEILLE.md`.
 | 2:50 | Chat : « C'est quoi un ETF ? », puis « Dois-je acheter AAPL ? ». | Bonus IA, refus du conseil | « La réponse est calculée en Python à partir des fiches et de la base. Ollama ne fait que reformuler, et sa sortie est rejetée si elle ne passe pas le contrôle. » |
 | 3:40 | DevTools → Network → Offline, recharger. Ouvrir la watchlist, puis une adresse jamais visitée. | Hors ligne : bandeau, données en cache, page `/offline` | « Le service worker sert les pages précachées ; les données viennent d'IndexedDB. » |
 | 4:20 | Repasser en ligne. Icône d'installation de Chrome → Installer MarketPulse, rouvrir en fenêtre autonome. | PWA installable | « Manifest `standalone`, icônes 192 et 512. » |
-| 4:45 | Ouvrir `/status`. | Transparence | « État de l'API, de la base, d'Ollama et âge des cours. » |
+| 4:30 | Profil : cocher « Recevoir aussi mes notifications par e-mail », Enregistrer, « Envoyer une notification de test », ouvrir Mailpit. | Notifications par e-mail, même déconnecté | « Le serveur envoie ; pas besoin d'être connecté. En local, le message arrive dans Mailpit. » |
+| 4:50 | Ouvrir `/status`. | Transparence | « État de l'API, de la base, d'Ollama et âge des cours. » |
 
 ## Plans B
 

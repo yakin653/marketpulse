@@ -101,8 +101,8 @@ Le Pulse Score (`src/lib/pulse.ts`) pondère la position face aux moyennes mobil
 - **Modèle sans avantage prouvé** : 52,7 % de précision contre 52,9 % pour la règle « toujours hausse ». Il est affiché comme tel et n'entre pas dans le Pulse Score.
 - **Six mois de cours** par actif (plage Yahoo `6mo`).
 - **E-mail réel non configuré par défaut** : le code de connexion arrive dans Mailpit (http://localhost:8025) ou dans les logs de l'API. Recevoir le code dans une vraie boîte demande un compte d'envoi (`finsight/configurer-email.ps1`), jamais testé de bout en bout.
+- **Chat sur le lien Vercel** : sans API, il affiche « L'API MarketPulse n'est pas joignable ». Il ne fonctionne qu'avec l'API (en local).
 - **Chat avec Ollama** : sur la machine de développement, la reformulation ne tient pas dans le délai de 30 secondes ; c'est la réponse Python qui est servie.
 - **Mode démo** : les chiffres affichés viennent de `src/mock/data.json` et sont étiquetés comme tels ; les alertes créées sans API restent sur l'appareil.
-- **Installation sur un vrai téléphone** : contrôlée sur le build et sur Chrome, pas sur un appareil physique.
-- Un avertissement eslint connu (`react-hooks/exhaustive-deps` dans `src/hooks/useResource.ts`), sans erreur.
-- **Qualité outillée** : la porte qualité SonarCloud est en échec sur les deux dépôts et `npm audit` signale 7 avis dans les dépendances de production. Détail dans `docs/VALIDATION.md`.
+- **Installation sur un vrai téléphone** : contrôlée dans un navigateur Chromium, pas sur un appareil physique.
+- **Qualité outillée** : la porte qualité SonarCloud était en échec sur les deux dépôts (remarques du site corrigées depuis, non réanalysées) et `npm audit` signale encore 6 avis dans les dépendances de production. Détail dans `docs/VALIDATION.md`.

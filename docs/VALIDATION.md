@@ -8,8 +8,8 @@ Chaque ligne donne la commande et le résultat observé. Ce qui n'a pas été v�
 | Exigence | État | Preuve |
 | --- | --- | --- |
 | PWA installable | Vérifié | `/manifest.webmanifest` répond 200 en local et sur Vercel : `display: standalone`, `start_url: /`, icônes 192 et 512. `/sw.js` répond 200. |
-| Mode hors ligne | Vérifié par requêtes | Service worker Serwist généré (`src/app/sw.ts`), page `/offline` (200), données relues depuis IndexedDB (`src/lib/data.ts`). Le passage hors ligne dans le navigateur se rejoue à la main (`docs/CHECKLIST_VEILLE.md`). |
-| CRUD | Vérifié côté API | Alertes : test `backend/tests/test_alerts_crud.py` (création, liste, pause, suppression). Watchlist dans IndexedDB (`src/lib/db.ts`), à rejouer à la main. |
+| Mode hors ligne | Vérifié dans un navigateur | Réseau coupé : une page jamais visitée (`/markets`) est servie, le mode démo ouvre le tableau de bord avec le bandeau « Mode hors ligne ». Détail dans « Essai dans un navigateur ». |
+| CRUD | Vérifié dans un navigateur et par test | Watchlist (IndexedDB) et alertes (repli local) : créer, modifier, mettre en pause, supprimer, réseau coupé. Alertes côté API : `backend/tests/test_alerts_crud.py`. |
 | Mobile d'abord | Présent dans le code | Onglets en bas sous 768 px (`src/components/AppShell.tsx`), `viewport` dans `src/app/layout.tsx`. |
 | Bonus IA | Vérifié | Banc de 60 questions, 100 % par mode (`finsight/docs/chat-evaluation.md`). |
 | Hébergement Vercel | Vérifié, démo sans API | Voir « Site public ». |
@@ -18,7 +18,7 @@ Chaque ligne donne la commande et le résultat observé. Ce qui n'a pas été v�
 
 | Contrôle | Commande | Résultat |
 | --- | --- | --- |
-| Lint, types, test, build | `npm run check` | code de sortie 0 : eslint 0 erreur et 1 avertissement connu, `tsc --noEmit` sans erreur, 2 tests sur 2, build de 22 pages |
+| Lint, types, test, build | `npm run check` | code de sortie 0 : eslint sans erreur ni avertissement, `tsc --noEmit` sans erreur, 2 tests sur 2, build de 22 pages |
 | Service worker généré | présence de `public/sw.js` après le build | présent, non suivi par Git |
 | Clone vierge depuis GitHub | `git clone`, `copy .env.example .env.local`, `npm ci`, `npm run lint`, `npx tsc --noEmit`, test du Pulse Score, `npm run build` | code de sortie 0 à chaque étape, `public/sw.js` généré, `git status` propre |
 | Site local (`npm start`) | `curl.exe` sur `/`, `/login`, `/manifest.webmanifest`, `/sw.js`, `/offline`, `/api/health` | 200 partout |
@@ -27,11 +27,11 @@ Chaque ligne donne la commande et le résultat observé. Ce qui n'a pas été v�
 
 | Contrôle | Commande | Résultat |
 | --- | --- | --- |
-| Tests | `python -m pytest -q` dans `backend` | 53 réussis |
+| Tests | `python -m pytest -q` dans `backend` | 60 réussis (dont 7 pour les notifications par e-mail) |
 | Tests sans effet de bord | `git status` après pytest | aucun fichier modifié |
 | Lint | `ruff check .` | aucune erreur |
 | Intégration continue GitHub | workflow `CI` sur le commit `99d7e5e` | « Tests + Lint » et « Docker build » réussis |
-| Clone vierge depuis GitHub | `git clone`, `copy .env.example .env`, venv Python 3.13 neuf, `pip install -r requirements.txt pytest`, `pytest -q` | 53 réussis, `git status` propre |
+| Clone vierge depuis GitHub (commit `99d7e5e`) | `git clone`, `copy .env.example .env`, venv Python 3.13 neuf, `pip install -r requirements.txt pytest`, `pytest -q` | 53 réussis, `git status` propre |
 | Dépendances | `requirements.txt` | 14 paquets à version fixe, dont `pywebpush` |
 
 ## Pile locale
@@ -67,11 +67,24 @@ Le projet Vercel est relié à GitHub : chaque `git push` sur `main` déclenche 
 - Historique des deux dépôts balayé (mots de passe, chaînes de connexion, jetons, clés privées) : rien trouvé. Les seules valeurs présentes sont les valeurs locales documentées de `.env.example`.
 - `.gitignore` des deux dépôts : `.env`, `.env.*`, `!.env.example`, `*.bak`.
 
+## Essai dans un navigateur
+
+Navigateur intégré à Cursor (Chromium), réseau coupé par le protocole DevTools (`Network.emulateNetworkConditions`), session en mode démo :
+
+| Contrôle | Résultat |
+| --- | --- |
+| Service worker et manifest en local | actif et contrôle la page ; `standalone`, icônes 192 et 512 ; `/offline` dans le précache |
+| Page jamais visitée, hors ligne (`/markets`) | servie par le service worker |
+| Mode démo hors ligne | tableau de bord affiché, bandeau « Mode hors ligne » |
+| Watchlist hors ligne | ajout NVDA, ajout d'une note, suppression : relus dans IndexedDB |
+| Alertes hors ligne | création, mise en pause, suppression, stockées sur l'appareil |
+| Profil, compte réel (jetable, supprimé après) | case « notifications par e-mail » cochée, enregistrée côté serveur ; le test envoie un message reçu dans Mailpit |
+| Lien Vercel | service worker actif, manifest `standalone`, mode démo ouvert ; chat : API absente, message d'erreur |
+
 ## Points ouverts, connus
 
-- **SonarCloud : porte qualité en échec sur les deux dépôts**, déjà avant cette version. Site : 12 remarques de fiabilité (boutons sans attribut `type`, zones cliquables sans gestion du clavier, une promesse sans `catch`). API : le mot de passe PostgreSQL local de développement, présent dans `docker-compose.yml`, `backend/app/database.py` et la CI, est signalé comme secret ; c'est une valeur locale documentée, à changer avant tout hébergement. L'alerte `IndexError` de `market_refresh.py` est un faux positif (l'indice est borné sur la ligne même).
-- **`npm audit`** : 37 avis sur l'arbre complet, dont 7 dans les dépendances de production (5 élevés, 2 modérés, aucun critique), surtout par `@serwist/next`. Non corrigé : le correctif proposé change de version majeure.
-- Un avertissement eslint (`react-hooks/exhaustive-deps`, `src/hooks/useResource.ts`).
+- **SonarCloud : porte qualité en échec sur les deux dépôts** à l'analyse du commit `ad2aecc`. Site : 12 remarques de fiabilité (boutons sans attribut `type`, zones cliquables sans gestion du clavier, une promesse sans `catch`) ; elles sont corrigées dans le code depuis, mais la porte n'a pas été réanalysée. API : le mot de passe PostgreSQL local de développement, présent dans `docker-compose.yml`, `backend/app/database.py` et la CI, est signalé comme secret ; c'est une valeur locale documentée, à changer avant tout hébergement. L'alerte `IndexError` de `market_refresh.py` est un faux positif (l'indice est borné sur la ligne même).
+- **`npm audit`** : après `npm audit fix` (sans `--force`) : 31 avis sur l'arbre complet (37 avant), dont 6 dans les dépendances de production (4 élevés, 2 modérés, aucun critique), surtout par `@serwist/next`. Le reste exige un changement de version majeure de Serwist, non fait avant la validation.
 
 ## Non vérifié
 
@@ -79,5 +92,6 @@ Le projet Vercel est relié à GitHub : chaque `git push` sur `main` déclenche 
 - Réception du code dans une vraie boîte mail (aucun compte d'envoi configuré).
 - Notifications push réelles (pas de clés VAPID) et connexion Google (jamais rejouée contre Google).
 - Déploiement de l'API sur Render et base Neon : jamais appliqués.
-- Installation de la PWA sur un téléphone physique.
+- Installation de la PWA sur un téléphone physique (et le bouton « Installer » de Chrome, que le navigateur d'essai ne propose pas).
+- Chat sur le lien Vercel : il répond « API MarketPulse non joignable », faute d'API hébergée.
 - Reformulation par Ollama dans le délai de 30 secondes : 0 sur 60 sur cette machine.

@@ -13,7 +13,7 @@ export type Profile = {
   favorite_symbols: string[];
   news_keywords: string[];
   language: string;
-  notif_prefs: { frequence: "instantane" | "quotidien"; heure: number; quiet_start: number; quiet_end: number };
+  notif_prefs: { frequence: "instantane" | "quotidien"; heure: number; quiet_start: number; quiet_end: number; email?: boolean };
   onboarding_completed: boolean;
 };
 

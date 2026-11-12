@@ -7,7 +7,7 @@ import RequireAuth from "@/components/RequireAuth";
 import SafeMarkdown from "@/components/SafeMarkdown";
 import { useAuth } from "@/lib/auth";
 import { readCache, saveCache } from "@/lib/db";
-import { errorText, http } from "@/lib/http";
+import { apiUnreachable, errorText, http } from "@/lib/http";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 type Fiche = { slug: string; title: string };
@@ -97,7 +97,11 @@ function ChatScreen() {
       setMessages(saved);
       await saveCache("chat-history", saved);
     } catch (err) {
-      setError(errorText(err, "Le chat n'a pas répondu."));
+      setError(
+        apiUnreachable(err)
+          ? "L'API MarketPulse n'est pas joignable, et le chat en a besoin. Sur la démo publique, elle n'est pas hébergée ; en local, vérifie que Docker tourne."
+          : errorText(err, "Le chat n'a pas répondu."),
+      );
     } finally {
       setLoading(false);
     }
@@ -108,7 +112,7 @@ function ChatScreen() {
     const message = text.trim();
     if (!message || loading) return;
     setText("");
-    send(message);
+    void send(message);
   }
 
   async function openConversation(id: string) {
@@ -181,7 +185,7 @@ function ChatScreen() {
             <span className="sr-only">Message</span>
             <input className="w-full min-h-11 rounded-lg bg-[#0B0E11] border border-gray-700 px-3" value={text} onChange={(event) => setText(event.target.value)} disabled={!online || loading} placeholder={online ? "Une question" : "Hors ligne"} />
           </label>
-          <button className="min-h-11 px-4 rounded-lg bg-[var(--accent)] disabled:opacity-50" disabled={!online || loading}>{loading ? "…" : "Envoyer"}</button>
+          <button type="submit" className="min-h-11 px-4 rounded-lg bg-[var(--accent)] disabled:opacity-50" disabled={!online || loading}>{loading ? "…" : "Envoyer"}</button>
         </form>
       </section>
     </div>

@@ -44,7 +44,7 @@ function ResetForm() {
             <input className="mt-1.5 w-full min-h-12 rounded-lg border border-cyan-300/80 bg-[#071018]/80 px-3 text-sm text-white outline-none" type="password" minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} required />
           </label>
           {error && <p className="text-sm text-red-300" role="alert">{error}</p>}
-          <button className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading || !token}>{loading ? "Enregistrement…" : "Enregistrer"}</button>
+          <button type="submit" className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading || !token}>{loading ? "Enregistrement…" : "Enregistrer"}</button>
         </form>
       )}
     </AuthFrame>

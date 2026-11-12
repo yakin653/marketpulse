@@ -143,7 +143,7 @@ export default function AuthGate({ initialMode }: { initialMode: Mode }) {
           </div>
         )}
         {error && <p className="text-sm text-red-300" role="alert">{error}</p>}
-        <button className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold text-white shadow-[0_0_24px_rgba(34,211,238,0.35)] disabled:opacity-60" disabled={loading}>
+        <button type="submit" className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold text-white shadow-[0_0_24px_rgba(34,211,238,0.35)] disabled:opacity-60" disabled={loading}>
           {loading ? "Patiente…" : login ? "Se connecter" : "Créer le compte"}
         </button>
         {google && (

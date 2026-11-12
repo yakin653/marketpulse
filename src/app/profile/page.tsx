@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import RequireAuth from "@/components/RequireAuth";
 import { useAuth } from "@/lib/auth";
@@ -20,8 +20,16 @@ function ProfileForm() {
   const [keywords, setKeywords] = useState(profile?.news_keywords.join(", ") ?? "");
   const [frequence, setFrequence] = useState(profile?.notif_prefs.frequence ?? "instantane");
   const [heure, setHeure] = useState(profile?.notif_prefs.heure ?? 8);
+  const [emailOn, setEmailOn] = useState(profile?.notif_prefs.email === true);
+  const [mailMode, setMailMode] = useState<"smtp" | "local" | "logs" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [pushState, setPushState] = useState<string | null>(null);
+
+  useEffect(() => {
+    http.get<{ mail?: "smtp" | "local" | "logs" }>("/auth/providers")
+      .then((res) => setMailMode(res.data.mail ?? null))
+      .catch(() => setMailMode(null));
+  }, []);
 
   async function save() {
     if (!profile) return;
@@ -29,7 +37,7 @@ function ProfileForm() {
       await http.put("/me/profile", {
         ...profile,
         news_keywords: keywords.split(",").map((item) => item.trim()).filter(Boolean),
-        notif_prefs: { ...profile.notif_prefs, frequence, heure },
+        notif_prefs: { ...profile.notif_prefs, frequence, heure, email: emailOn },
         onboarding_completed: true,
       });
       await refresh();
@@ -90,6 +98,17 @@ function ProfileForm() {
       </div>
       <label className="block text-sm">Heure du résumé
         <input className="mt-1 w-24 bg-[#0B0E11] border border-gray-700 rounded-lg px-3 py-2" type="number" min={0} max={23} value={heure} onChange={(event) => setHeure(Number(event.target.value))} />
+      </label>
+      <label className="flex items-start gap-3 text-sm min-h-11">
+        <input type="checkbox" className="mt-1 h-5 w-5" checked={emailOn} onChange={(event) => setEmailOn(event.target.checked)} />
+        <span>
+          Recevoir aussi mes notifications par e-mail
+          <span className="block text-xs text-gray-400">
+            Envoyées à {user?.email}, même quand tu es déconnecté. 10 e-mails par jour au plus.
+            {mailMode === "logs" && " Attention : le serveur n'a pas d'envoi d'e-mails configuré, rien ne partira."}
+            {mailMode === "local" && " Ici l'envoi va dans la boîte de test locale (Mailpit), pas dans ta vraie boîte."}
+          </span>
+        </span>
       </label>
       {message && <p className="text-sm text-gray-300">{message}</p>}
       <button type="button" className="px-4 py-2 bg-[var(--accent)] rounded-lg" onClick={save}>Enregistrer</button>

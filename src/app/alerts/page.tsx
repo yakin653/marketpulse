@@ -132,7 +132,7 @@ function AlertsBody() {
           </label>
         )}
         {error && <p className="text-sm text-red-300" role="alert">{error}</p>}
-        <button className="w-full min-h-11 rounded-lg bg-[var(--accent)] font-medium disabled:opacity-60" disabled={loading}>
+        <button type="submit" className="w-full min-h-11 rounded-lg bg-[var(--accent)] font-medium disabled:opacity-60" disabled={loading}>
           {loading ? "Création…" : "Créer l'alerte"}
         </button>
       </form>

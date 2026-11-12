@@ -107,7 +107,10 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
         event.preventDefault();
         setPalette(true);
       }
-      if (event.key === "Escape") setPalette(false);
+      if (event.key === "Escape") {
+        setPalette(false);
+        setMore(false);
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -207,8 +210,9 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
         </nav>
       )}
       {more && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/60" onClick={() => setMore(false)}>
-          <div className="absolute bottom-0 inset-x-0 bg-[var(--surface)] rounded-t-2xl p-4 space-y-2" onClick={(event) => event.stopPropagation()}>
+        <div className="md:hidden fixed inset-0 z-50">
+          <button type="button" aria-label="Fermer le menu" className="absolute inset-0 h-full w-full cursor-default bg-black/60" onClick={() => setMore(false)} />
+          <div className="absolute bottom-0 inset-x-0 bg-[var(--surface)] rounded-t-2xl p-4 space-y-2">
             <Link className="min-h-11 flex items-center" href="/watchlist" onClick={() => setMore(false)}>Watchlist</Link>
             <Link className="min-h-11 flex items-center" href="/alerts" onClick={() => setMore(false)}>Alertes</Link>
             <Link className="min-h-11 flex items-center" href="/notifications" onClick={() => setMore(false)}>Notifications</Link>
@@ -222,8 +226,9 @@ function Chrome({ pathname, children }: { pathname: string; children: ReactNode 
         </div>
       )}
       {palette && (
-        <div className="fixed inset-0 z-50 bg-black/60 p-4" onClick={() => setPalette(false)}>
-          <div className="max-w-lg mx-auto mt-16 bg-[var(--surface)] rounded-xl border border-gray-800 p-4" role="dialog" aria-label="Palette de commandes" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-50 p-4">
+          <button type="button" aria-label="Fermer la palette" className="absolute inset-0 h-full w-full cursor-default bg-black/60" onClick={() => setPalette(false)} />
+          <div className="relative max-w-lg mx-auto mt-16 bg-[var(--surface)] rounded-xl border border-gray-800 p-4" role="dialog" aria-label="Palette de commandes">
             <input
               autoFocus
               aria-label="Aller à une page ou chercher un actif"

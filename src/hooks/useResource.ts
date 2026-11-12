@@ -15,6 +15,8 @@ export function useResource<T>(cacheKey: string, path: string, mock: T) {
       if (alive) setLoading(false);
     });
     return () => { alive = false; };
+    // `mock` n'est que le jeu de secours : les appelants le passent souvent en littéral, ce qui relancerait la requête à chaque rendu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cacheKey, path, nonce]);
 
   return { ...state, loading, reload: () => setNonce((value) => value + 1) };

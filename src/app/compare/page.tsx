@@ -40,7 +40,7 @@ export default function ComparePage() {
         <label className="flex-1 text-sm">Symboles
           <input className="mt-1 w-full min-h-11 rounded-lg bg-[#0B0E11] border border-gray-700 px-3" value={text} onChange={(event) => setText(event.target.value)} />
         </label>
-        <button className="min-h-11 self-end px-4 rounded-lg bg-[var(--accent)]">Comparer</button>
+        <button type="submit" className="min-h-11 self-end px-4 rounded-lg bg-[var(--accent)]">Comparer</button>
       </form>
       {error && <p className="text-sm text-red-300" role="alert">{error}</p>}
       {data?.status === "insuffisant" && <p className="text-sm text-gray-300">{data.message}</p>}

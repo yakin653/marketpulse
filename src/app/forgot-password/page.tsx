@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
             <input className="mt-1.5 w-full min-h-12 rounded-lg border border-cyan-300/80 bg-[#071018]/80 px-3 text-sm text-white outline-none" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
           </label>
           {error && <p className="text-sm text-red-300" role="alert">{error}</p>}
-          <button className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading}>{loading ? "Envoi…" : "Recevoir un code"}</button>
+          <button type="submit" className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading}>{loading ? "Envoi…" : "Recevoir un code"}</button>
           <Link href="/login" className="inline-flex min-h-11 items-center text-sm text-cyan-300">Retour à la connexion</Link>
         </form>
       ) : (
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
             <input className="mt-1.5 w-full min-h-12 rounded-lg border border-cyan-300/80 bg-[#071018]/80 px-3 text-center text-lg tracking-[0.4em] text-white outline-none" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))} required />
           </label>
           {error && <p className="text-sm text-red-300" role="alert">{error}</p>}
-          <button className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading || code.length !== 6}>{loading ? "Vérification…" : "Me connecter avec ce code"}</button>
+          <button type="submit" className="w-full min-h-12 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-600 font-semibold disabled:opacity-60" disabled={loading || code.length !== 6}>{loading ? "Vérification…" : "Me connecter avec ce code"}</button>
           <div className="flex items-center justify-between">
             <button type="button" onClick={onResend} disabled={loading} className="inline-flex min-h-11 items-center text-sm text-cyan-300 disabled:opacity-60">Renvoyer un code</button>
             <button type="button" onClick={() => { setStep("email"); setError(null); }} className="inline-flex min-h-11 items-center text-sm text-gray-400">Changer d&apos;e-mail</button>
